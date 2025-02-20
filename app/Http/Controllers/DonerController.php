@@ -10,16 +10,7 @@ class DonerController extends Controller
     function insertDoner(Request $request)
     {
 
-        /* $data = [
-            "name" => $request->input('name'),
-            "lastname" => $request->input('lastname'),
-            "birthday" => $request->input('birthday'),
-            "address" => $request->input('address'),
-            "email" => $request->input('email'),
-            "sex" => $request->input('sex'),
-            "job" => $request->input('job')
-
-        ]; */
+      
         $data = $request->validate([
             "name"=>'required|alpha|max:55',
             "lastname"=>'required|alpha|max:55',
@@ -29,10 +20,7 @@ class DonerController extends Controller
             "sex"=>'required|max:1',
             "job"=>'required|alpha'
         ]);
-/*         $data = $request->only(['name','lastname','birthday','address','email','sex','job']); */
-
-       /*  $sql = "INSERT INTO doners (name, lastname, birthday, address, email, sex, job) values (:name, :lastname, :birthday, :address,  :email, :sex, :job)";
-        DB::insert($sql, $data); */
+       
         DB::table('doners')->insert($data);
         return ["Message" => "successful creation for doner", 'data'=>$data];
     }
@@ -41,10 +29,7 @@ class DonerController extends Controller
     {
         if ($request->has("email")) {
             $query = $request->query("email");
-            /* $data = ["email" => $query]; */
-
-            /* $sql = "SELECT * FROM doners WHERE email=:email";
-            $doner = DB::SELECT($sql, $data); */
+          
 
             $doner=DB::table('doners')->select('*')->where('email','=',$query)->get();
             if (empty($doner)) {
@@ -54,10 +39,7 @@ class DonerController extends Controller
         }
         elseif ($request->has("name")) {
             $query = $request->query("name");
-           /*  $data = ["name" => $query]; */
-
-            /* $sql = "SELECT * FROM doners WHERE name=:name";
-            $doner = DB::SELECT($sql, $data); */
+          
 
             $doner= DB::table('doners')->select('*')->where('name','=',$query)->get();
             if (empty($doner)) {
@@ -68,10 +50,7 @@ class DonerController extends Controller
 
         elseif ($request->has("lastname")) {
             $query = $request->query("lastname");
-            /* $data = ["lastname" => $query]; */
-
-            /* $sql = "SELECT * FROM doners WHERE lastname=:lastname";
-            $doner = DB::SELECT($sql, $data); */
+          
 
             $doner = DB::table('doners')->select('*')->where('lastname', $query)->get();
             if (empty($doner)) {
@@ -87,7 +66,7 @@ class DonerController extends Controller
     }
 
     function showDoners(){
-        /* $doners = DB::select("SELECT * FROM doners"); */
+
 
         $doners=DB::table('doners')->select()->get();
 
