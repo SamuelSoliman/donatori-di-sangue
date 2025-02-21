@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         //
         $middleware->removeFromGroup('web', ValidateCsrfToken::class);
+       $middleware->trustProxies(at:['*']);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

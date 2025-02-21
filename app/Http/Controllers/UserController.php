@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\InsertUserRequest;
+use App\Models\Center;
 use Illuminate\Http\Request;
 use App\Models\User;
 
@@ -30,16 +31,17 @@ class UserController extends Controller
     {
        
         $data=$request->validated();
+        $center=Center::where("location","=",$data['center'])->first();
 
         $data['password']=Hash::make($data['password']);
 
-        DB::table("users")->insert($data);
+        DB::table("users")->insert(["name"=>$data['name'],"lastname"=>$data['lastname'],"email"=>$data['email'],"password"=>$data["password"],"center_id"=>$center->id]);
 
         $user = User::where('email', $request->input('email'))->first();
         event(new Registered($user));
 
 
-        return ["Message"=>"succeful creation for user",$data];
+        return ["Message"=>"succeful creation for user","data"=>["name"=>$data['name'],"lastname"=>$data["lastname"],"email"=>$data["email"]]];
     }
 
     function login(Request $request)
@@ -62,19 +64,22 @@ class UserController extends Controller
 /*
         Auth::loginUsingId($user[0]->id); */
         $token =$user->createToken($user->name);
+        $role='';
+        if ($user->admin==true){
+            $role="admin";
+        }else {
+            $role="user";
+        }
         return response()->json([
             'message' => 'Login successful',
-            'aceess_token'=> $token->plainTextToken
+            'aceess_token'=> $token->plainTextToken,
+            'data'=>['name'=>$user->name,"lastname"=>$user->lastname,"email"=>$user->email,"role"=>$role]
         ], 200);
     }
 
     function logout(User $user)
     {
-        $user = auth('auth:sanctum')->user()->tokens()->delete();;
-
-
-
-
+        $user = auth()->user()->tokens()->delete();;
 
         return response()->json([
             'message'=>'Logout successful',

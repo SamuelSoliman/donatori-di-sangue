@@ -603,11 +603,16 @@ class ComposerStaticInit626b9e7ddd47fb7eff9aaa53cce0c9ad
 
     public static $classMap = array (
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
+        'App\\Http\\Controllers\\DonationController' => __DIR__ . '/../..' . '/app/Http/Controllers/DonationController.php',
         'App\\Http\\Controllers\\DonerController' => __DIR__ . '/../..' . '/app/Http/Controllers/DonerController.php',
         'App\\Http\\Controllers\\PasswordResetController' => __DIR__ . '/../..' . '/app/Http/Controllers/PasswordResetController.php',
         'App\\Http\\Controllers\\UserController' => __DIR__ . '/../..' . '/app/Http/Controllers/UserController.php',
         'App\\Http\\Middleware\\IsAdmin' => __DIR__ . '/../..' . '/app/Http/Middleware/IsAdmin.php',
         'App\\Http\\Middleware\\IsUser' => __DIR__ . '/../..' . '/app/Http/Middleware/IsUser.php',
+        'App\\Http\\Requests\\InsertUserRequest' => __DIR__ . '/../..' . '/app/Http/Requests/InsertUserRequest.php',
+        'App\\Models\\Center' => __DIR__ . '/../..' . '/app/Models/Center.php',
+        'App\\Models\\Donation' => __DIR__ . '/../..' . '/app/Models/Donation.php',
+        'App\\Models\\Doner' => __DIR__ . '/../..' . '/app/Models/Doner.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',
         'Assert\\Assert' => __DIR__ . '/..' . '/beberlei/assert/lib/Assert/Assert.php',

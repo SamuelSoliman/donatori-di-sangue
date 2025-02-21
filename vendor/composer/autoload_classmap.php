@@ -7,11 +7,16 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'App\\Http\\Controllers\\Controller' => $baseDir . '/app/Http/Controllers/Controller.php',
+    'App\\Http\\Controllers\\DonationController' => $baseDir . '/app/Http/Controllers/DonationController.php',
     'App\\Http\\Controllers\\DonerController' => $baseDir . '/app/Http/Controllers/DonerController.php',
     'App\\Http\\Controllers\\PasswordResetController' => $baseDir . '/app/Http/Controllers/PasswordResetController.php',
     'App\\Http\\Controllers\\UserController' => $baseDir . '/app/Http/Controllers/UserController.php',
     'App\\Http\\Middleware\\IsAdmin' => $baseDir . '/app/Http/Middleware/IsAdmin.php',
     'App\\Http\\Middleware\\IsUser' => $baseDir . '/app/Http/Middleware/IsUser.php',
+    'App\\Http\\Requests\\InsertUserRequest' => $baseDir . '/app/Http/Requests/InsertUserRequest.php',
+    'App\\Models\\Center' => $baseDir . '/app/Models/Center.php',
+    'App\\Models\\Donation' => $baseDir . '/app/Models/Donation.php',
+    'App\\Models\\Doner' => $baseDir . '/app/Models/Doner.php',
     'App\\Models\\User' => $baseDir . '/app/Models/User.php',
     'App\\Providers\\AppServiceProvider' => $baseDir . '/app/Providers/AppServiceProvider.php',
     'Assert\\Assert' => $vendorDir . '/beberlei/assert/lib/Assert/Assert.php',

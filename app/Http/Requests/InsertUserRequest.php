@@ -26,7 +26,7 @@ class InsertUserRequest extends FormRequest
             'lastname'=>'required|alpha:ascii|max:50',
             'email'=>'required|email|unique:users',
             'password'=> 'required|min:8',
-            'center_id'=>'required|numeric'
+            'center'=>'required|alpha|exists:centers,location'
         ];
     }
 }

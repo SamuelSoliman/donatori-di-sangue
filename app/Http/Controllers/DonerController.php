@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Doner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -68,12 +69,21 @@ class DonerController extends Controller
     function showDoners(){
 
 
-        $doners=DB::table('doners')->select()->get();
-
+        /* $doners=DB::table('doners')->select()->get(); */
+        $doners=Doner::with('donations')->get();
+        dd($doners->donations->doner_id);
         if (empty($doners)){
             return ["Message"=>"the doners list is empty"];
         }
 
         return [$doners];
+    }
+    function showDoner($id){
+
+        $doner=Doner::find($id);
+        if (!$doner){
+            return response()->json(["message"=>"doner not found",404]);
+        }
+        return response()->json(["data"=>$doner],200);
     }
 }
