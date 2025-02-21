@@ -267,18 +267,16 @@ namespace App\Models {
     /**
      * App\Models\Donation
      *
-     * @property string $doner_email
      * @property string $center
-     * @property date|null $donation_date
-     * @property bigint(20) unsigned|null $doner_id
+     * @property string|null $donation_date
+     * @property string $doner_email
      * @property int $id
      * @property-read \App\Models\Doner $doner
      * @property-read \App\Models\Center $center
      * @method static \Illuminate\Database\Eloquent\Builder|Donation whereId($value)
-     * @method static \Illuminate\Database\Eloquent\Builder|Donation whereDonerId($value)
+     * @method static \Illuminate\Database\Eloquent\Builder|Donation whereDonerEmail($value)
      * @method static \Illuminate\Database\Eloquent\Builder|Donation whereDonationDate($value)
      * @method static \Illuminate\Database\Eloquent\Builder|Donation whereCenter($value)
-     * @method static \Illuminate\Database\Eloquent\Builder|Donation whereDonerEmail($value)
      * @method static \Illuminate\Database\Eloquent\Builder|Donation newModelQuery()
      * @method static \Illuminate\Database\Eloquent\Builder|Donation newQuery()
      * @method static \Illuminate\Database\Eloquent\Builder|Donation query()
@@ -539,7 +537,7 @@ namespace App\Models {
      * @property string $sex
      * @property string $email
      * @property string $address
-     * @property date $birthday
+     * @property string $birthday
      * @property string $lastname
      * @property string $name
      * @property int $id
@@ -813,8 +811,8 @@ namespace App\Models {
      * @property \Illuminate\Support\Carbon|null $updated_at
      * @property \Illuminate\Support\Carbon|null $created_at
      * @property string|null $remember_token
-     * @property tinyint(1) $admin
-     * @property hashed $password
+     * @property bool $admin
+     * @property string $password
      * @property \Illuminate\Support\Carbon|null $email_verified_at
      * @property string $email
      * @property string $lastname

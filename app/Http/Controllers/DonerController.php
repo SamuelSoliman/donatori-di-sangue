@@ -71,10 +71,8 @@ class DonerController extends Controller
 
         /* $doners=DB::table('doners')->select()->get(); */
         $doners=Doner::with('donations')->get();
-        dd($doners->donations->doner_id);
-        if (empty($doners)){
-            return ["Message"=>"the doners list is empty"];
-        }
+        
+      
 
         return [$doners];
     }

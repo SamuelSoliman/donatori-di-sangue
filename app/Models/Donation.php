@@ -10,7 +10,7 @@ class Donation extends Model
     //
     public function doner(): BelongsTo
     {
-        return $this->belongsTo(Doner::class);
+        return $this->belongsTo(Doner::class, 'doner_email', 'email');
     }
     public function center(): BelongsTo
     {
