@@ -13,9 +13,8 @@ return new class extends Migration
     {
         Schema::create('donations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('doner_id')->nullable()
-            ->constrained('doners')->nullOnDelete();
-            
+            $table->string('doner_email');
+            $table->foreign('doner_email')->references('email')->on('doners');
            $table->date('donation_date')->nullable();
 
         });

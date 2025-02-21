@@ -17,7 +17,7 @@ class DonationController extends Controller
         ]);
         $doner=Doner::where('email','=',$data['doner_email'])->first();
         $center=Center::where('location','=',$data['center'])->first();
-        $donation=Donation::insert(["doner_id"=>$doner->id,"center_id"=>$center->id,"donation_date"=>$data["donation_date"]]);
+        $donation=Donation::insert(["doner_email"=>$data["doner_email"],"center"=>$data['center'],"donation_date"=>$data["donation_date"]]);
         if ($donation){
         return response()->json(["Message"=>"donation insertion complete"],200);
         }else {

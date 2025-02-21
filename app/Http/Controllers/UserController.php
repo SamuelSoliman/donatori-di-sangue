@@ -31,17 +31,17 @@ class UserController extends Controller
     {
        
         $data=$request->validated();
-        $center=Center::where("location","=",$data['center'])->first();
+       // $center=Center::where("location","=",$data['center'])->first();
 
         $data['password']=Hash::make($data['password']);
 
-        DB::table("users")->insert(["name"=>$data['name'],"lastname"=>$data['lastname'],"email"=>$data['email'],"password"=>$data["password"],"center_id"=>$center->id]);
+    DB::table("users")->insert(["name"=>$data['name'],"lastname"=>$data['lastname'],"email"=>$data['email'],"password"=>$data["password"],"center"=>$data['center']]);
 
         $user = User::where('email', $request->input('email'))->first();
         event(new Registered($user));
 
 
-        return ["Message"=>"succeful creation for user","data"=>["name"=>$data['name'],"lastname"=>$data["lastname"],"email"=>$data["email"]]];
+        return ["Message"=>"succeful creation for user","data"=>["name"=>$data['name'],"lastname"=>$data["lastname"],"email"=>$data["email"],"center"=>$data['center']]];
     }
 
     function login(Request $request)
