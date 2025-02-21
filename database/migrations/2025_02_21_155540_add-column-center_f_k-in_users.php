@@ -11,14 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('donations', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('doner_id')->nullable()
-            ->constrained('doners')->nullOnDelete();
-            
-           $table->date('donation_date')->nullable();
-
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('center');
+            $table->foreign('center')->references('location')->on('centers');
         });
+       
     }
 
     /**

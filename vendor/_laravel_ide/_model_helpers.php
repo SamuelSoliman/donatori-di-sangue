@@ -5,6 +5,7 @@ namespace App\Models {
     /**
      * App\Models\Center
      *
+     * @property string $center
      * @property string $location
      * @property int $id
      * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
@@ -13,6 +14,7 @@ namespace App\Models {
      * @property-read int|null $donations_count
      * @method static \Illuminate\Database\Eloquent\Builder|Center whereId($value)
      * @method static \Illuminate\Database\Eloquent\Builder|Center whereLocation($value)
+     * @method static \Illuminate\Database\Eloquent\Builder|Center whereCenter($value)
      * @method static \Illuminate\Database\Eloquent\Builder|Center newModelQuery()
      * @method static \Illuminate\Database\Eloquent\Builder|Center newQuery()
      * @method static \Illuminate\Database\Eloquent\Builder|Center query()
@@ -267,16 +269,16 @@ namespace App\Models {
     /**
      * App\Models\Donation
      *
-     * @property string|null $donation_date
-     * @property int $center_id
-     * @property int|null $doner_id
+     * @property string $center
+     * @property date|null $donation_date
+     * @property bigint(20) unsigned|null $doner_id
      * @property int $id
      * @property-read \App\Models\Doner $doner
      * @property-read \App\Models\Center $center
      * @method static \Illuminate\Database\Eloquent\Builder|Donation whereId($value)
      * @method static \Illuminate\Database\Eloquent\Builder|Donation whereDonerId($value)
-     * @method static \Illuminate\Database\Eloquent\Builder|Donation whereCenterId($value)
      * @method static \Illuminate\Database\Eloquent\Builder|Donation whereDonationDate($value)
+     * @method static \Illuminate\Database\Eloquent\Builder|Donation whereCenter($value)
      * @method static \Illuminate\Database\Eloquent\Builder|Donation newModelQuery()
      * @method static \Illuminate\Database\Eloquent\Builder|Donation newQuery()
      * @method static \Illuminate\Database\Eloquent\Builder|Donation query()
@@ -537,7 +539,7 @@ namespace App\Models {
      * @property string $sex
      * @property string $email
      * @property string $address
-     * @property string $birthday
+     * @property date $birthday
      * @property string $lastname
      * @property string $name
      * @property int $id
@@ -807,12 +809,11 @@ namespace App\Models {
     /**
      * App\Models\User
      *
-     * @property int|null $center_id
      * @property \Illuminate\Support\Carbon|null $updated_at
      * @property \Illuminate\Support\Carbon|null $created_at
      * @property string|null $remember_token
-     * @property bool $admin
-     * @property string $password
+     * @property tinyint(1) $admin
+     * @property hashed $password
      * @property \Illuminate\Support\Carbon|null $email_verified_at
      * @property string $email
      * @property string $lastname
@@ -833,7 +834,6 @@ namespace App\Models {
      * @method static \Illuminate\Database\Eloquent\Builder|User whereRememberToken($value)
      * @method static \Illuminate\Database\Eloquent\Builder|User whereCreatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder|User whereUpdatedAt($value)
-     * @method static \Illuminate\Database\Eloquent\Builder|User whereCenterId($value)
      * @method static \Illuminate\Database\Eloquent\Builder|User newModelQuery()
      * @method static \Illuminate\Database\Eloquent\Builder|User newQuery()
      * @method static \Illuminate\Database\Eloquent\Builder|User query()

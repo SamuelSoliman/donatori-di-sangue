@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('center_id')->nullable()
-            ->constrained('users')->nullOnDelete();
+        Schema::table('donations', function (Blueprint $table) {
+            $table->string('center');
+            $table->foreign('center')->references('location')->on('centers');
         });
     }
 
@@ -22,6 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::table('donations', function (Blueprint $table) {
+            //
+        });
     }
 };
