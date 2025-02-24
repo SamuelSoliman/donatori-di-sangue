@@ -26,6 +26,25 @@ class DonerController extends Controller
         return ["Message" => "successful creation for doner", 'data'=>$data];
     }
 
+    function deleteDoner(Request $request){
+        $data = $request -> validate([
+            "id"=>'numeric|exists:doners,id',
+            "email"=>'email|exists:doners,email'
+        ]);
+       
+        if (array_key_exists("id",$data)){
+            Doner::where('id','=',$data['id'])->delete();
+            return response()->json(["Message"=>"successful delete for doner"],202);
+        }
+        else if (array_key_exists("email",$data)){
+            Doner::where('email','=',$data['email'])->delete();
+            return response()->json(["Message"=>"successful delete for doner"],202);
+
+        }else {
+            return response()->json(["error"=>"Must include doner's id or email"],400);
+        }
+    }
+
     function searchDoner(Request $request)
     {
         if ($request->has("email")) {

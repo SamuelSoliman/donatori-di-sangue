@@ -27,7 +27,7 @@ class UserController extends Controller
         DB::insert($sql, $data);
 
     }
-    function create(InsertUserRequest $request)
+    function createUser(InsertUserRequest $request)
     {
        
         $data=$request->validated();
@@ -35,13 +35,48 @@ class UserController extends Controller
 
         $data['password']=Hash::make($data['password']);
 
-    DB::table("users")->insert(["name"=>$data['name'],"lastname"=>$data['lastname'],"email"=>$data['email'],"password"=>$data["password"],"center"=>$data['center']]);
+    DB::table("users")->insert(["name"=>$data['name'],"lastname"=>$data['lastname'],"email"=>$data['email'],"password"=>$data["password"],"center"=>$data['center'],"admin"=>$data['admin']]);
 
         $user = User::where('email', $request->input('email'))->first();
         event(new Registered($user));
 
+        $role = isset($data["admin"]) && $data["admin"] == true ? "admin" : "user";
+        return ["Message"=>"succeful creation for user","data"=>["name"=>$data['name'],"lastname"=>$data["lastname"],"email"=>$data["email"],"center"=>$data['center'],"role"=>$role]];
+    }
 
-        return ["Message"=>"succeful creation for user","data"=>["name"=>$data['name'],"lastname"=>$data["lastname"],"email"=>$data["email"],"center"=>$data['center']]];
+    function deleteUser(Request $request){
+        $deletedUserEmail= $request->validate([
+            'email'=>'required|email|exists:users,email'
+        ]);
+        
+        $deletedUser=DB::table('users')->where('email','=',$deletedUserEmail)->delete();
+    
+        if($deletedUser){
+
+            return response()->json(["Message"=>"User is deleted successfully"],200);
+        }
+        else{
+            return response()->json(["Message"=>"User delete failed"],500);
+        }
+    }
+    function UpdateUser(Request $request){
+        $data = $request->validate([
+            'email'=>'required|email|exists:users,email',
+            'name'=>'alpha:ascii|max:50',
+            'lastname'=>'alpha:ascii|max:50',
+            'center'=>'string:exists:centers,location',
+            'password'=>'min:8'
+        ]);
+        if (sizeof($data)<2){
+            return response()->json(["error"=>"you must choose the email of the user that it is data needed to be modified and include new values for center or password or name or lastname or all to be modified"],400);
+        }
+        if (array_key_exists('password',$data)){
+            $data['password']=Hash::make($data['password']);
+        }
+
+        DB::table('users')->where('email','=',$data['email'])->update($data);
+        return response()->json(["Message"=>'user update is done successfully'],200);
+
     }
 
     function login(Request $request)
