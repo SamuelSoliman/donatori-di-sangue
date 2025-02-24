@@ -63,9 +63,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/doner/{id}', [DonerController::class, 'showDoner']);
     Route::get('/search-doner', [DonerController::class, 'searchDoner']);
     Route::get('/show-doners', [DonerController::class, 'showDoners']);
-});
-Route::middleware('auth:sanctum')->group(function () {
     Route::post('/create-donation', [DonationController::class, 'createDonation']);
+    Route::get('/show-donations',[DonationController::class, 'showDonations']);
 });
 
 Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword'])->middleware('guest')->name('password.email');

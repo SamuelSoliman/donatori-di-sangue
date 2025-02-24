@@ -24,4 +24,8 @@ class DonationController extends Controller
             return response()->json(["Message"=>"donation insertion failed"], 500);
         }
     }
+
+    function showDonations(){
+       return [ Donation::all()];
+    }
 }
