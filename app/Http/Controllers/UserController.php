@@ -27,6 +27,11 @@ class UserController extends Controller
         $sql = "INSERT INTO users (name, lastname, email, password, admin) values (:name, :lastname, :email, :password, :admin) ";
         DB::insert($sql, $data);
     }
+    function user (Request $request){
+        return [
+            'data' => $request->user()
+        ];
+    }
     function createUser(InsertUserRequest $request)
     {
 
@@ -46,7 +51,10 @@ class UserController extends Controller
         $role = isset($data["admin"]) && $data["admin"] == true ? "admin" : "user";
         return ["Message" => "succeful creation for user", "data" => ["name" => $data['name'], "lastname" => $data["lastname"], "email" => $data["email"], "center" => $data['center'], "role" => $role]];
     }
-
+    function listUsers(Request $request){
+        $users=DB::table('users')->select('id', 'name', 'lastname', 'email', 'admin')->get();
+        return [$users];
+    }
     function deleteUser(Request $request)
     {
         $deletedUserEmail = $request->validate([
@@ -109,9 +117,9 @@ class UserController extends Controller
             $role = "user";
         }
         return response()->json([
-            'message' => 'Login successful',
-            'aceess_token' => $token->plainTextToken,
-            'data' => ['name' => $user->name, "lastname" => $user->lastname, "email" => $user->email, "role" => $role]
+            // 'message' => 'Login successful',
+            'token' => $token->plainTextToken,
+            // 'data' => ['name' => $user->name, "lastname" => $user->lastname, "email" => $user->email, "role" => $role]
         ], 200);
     }
 

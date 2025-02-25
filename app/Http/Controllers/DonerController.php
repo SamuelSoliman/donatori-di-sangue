@@ -18,7 +18,7 @@ class DonerController extends Controller
             "birthday"=>'required|date',
             "address"=>'required',
             "email"=>'required|email|unique:doners',
-            "sex"=>'required|max:1',
+            "sex"=>'required|max:1|in:m,f',
             "job"=>'required|alpha'
         ]);
        
@@ -102,5 +102,26 @@ class DonerController extends Controller
             return response()->json(["message"=>"doner not found",404]);
         }
         return response()->json(["data"=>$doner],200);
+    }
+
+
+    function updateDoner(Request $request){
+        $data = $request->validate([
+            'email'=>'required|email|exists:doners,email',
+            'name'=>'alpha:ascii|max:50',
+            'lastname' => 'alpha:ascii|max:50',
+            'birthday' => 'date',
+            'address'=>'max:225',
+            'city' => 'alpha:ascii|max:50',
+            'sex'=> 'max:1,in:m,f',
+            'job'=>'alpha:ascii|max:50'
+        ]);
+        if (sizeof($data) < 2) {
+            return response()->json(["error" => "you must choose the email of the user that it is data needed to be modified and include new values  be modified"], 400);
+        }
+        DB::table('doners')->where('email', '=', $data['email'])->update($data);
+        return response()->json(["Message" => 'doner update is done successfully'], 200);
+
+
     }
 }
