@@ -27,9 +27,25 @@ class UserController extends Controller
         $sql = "INSERT INTO users (name, lastname, email, password, admin) values (:name, :lastname, :email, :password, :admin) ";
         DB::insert($sql, $data);
     }
-    function user (Request $request){
+    function user(Request $request)
+    {
+        $role = $request->user()->admin == true ? "admin" : "user";
+
         return [
-            'data' => $request->user()
+            // 'data' => $request->user(),
+            'data' => [
+
+                "id" => $request->user()->id,
+                "name" => $request->user()->name,
+                "lastname" => $request->user()->lastname,
+                "email" => $request->user()->email,
+                "email_verified_at" =>$request->user()->email_verified_at,
+                "role" => $role,
+                "created_at" => $request->user()->created_at,
+                "updated_at" => $request->user()->updated_at,
+                "center" => $request->user()->center
+            ]
+
         ];
     }
     function createUser(InsertUserRequest $request)
@@ -41,7 +57,7 @@ class UserController extends Controller
         $data['password'] = Hash::make($data['password']);
         if (array_key_exists("admin", $data)) {
             DB::table("users")->insert(["name" => $data['name'], "lastname" => $data['lastname'], "email" => $data['email'], "password" => $data["password"], "center" => $data['center'], "admin" => $data['admin']]);
-        }else {
+        } else {
             DB::table("users")->insert(["name" => $data['name'], "lastname" => $data['lastname'], "email" => $data['email'], "password" => $data["password"], "center" => $data['center']]);
         }
 
@@ -51,8 +67,21 @@ class UserController extends Controller
         $role = isset($data["admin"]) && $data["admin"] == true ? "admin" : "user";
         return ["Message" => "succeful creation for user", "data" => ["name" => $data['name'], "lastname" => $data["lastname"], "email" => $data["email"], "center" => $data['center'], "role" => $role]];
     }
-    function listUsers(Request $request){
-        $users=DB::table('users')->select('id', 'name', 'lastname', 'email', 'admin')->get();
+    function listUsers(Request $request)
+    {
+        $users = DB::table('users')->select('id', 'name', 'lastname', 'email', 'admin')->get()
+        ->map(function($user){
+            return [
+            'id'=>$user->id,
+            'name' => $user->name,
+            'lastname' => $user->lastname,
+            'email' => $user->email,
+            'role' => $user->admin ? "admin" : "user"
+            ] ;
+
+        });
+       
+       
         return [$users];
     }
     function deleteUser(Request $request)

@@ -18,7 +18,7 @@ class DonerController extends Controller
             "birthday"=>'required|date',
             "address"=>'required',
             "email"=>'required|email|unique:doners',
-            "sex"=>'required|max:1|in:m,f',
+            "sex"=>'required|max:1|in:M,F,m,f',
             "job"=>'required|alpha'
         ]);
        
@@ -45,56 +45,102 @@ class DonerController extends Controller
         }
     }
 
-    function searchDoner(Request $request)
-    {
+    // function searchDoner(Request $request)
+    // {
+    //     if ($request->has("email")) {
+    //         $query = $request->query("email");
+          
+
+    //         $doner=DB::table('doners')->select('*')->where('email','=',$query)->get();
+    //         if (empty($doner)) {
+    //             return ["Message" => "this doner email not found "];
+    //         }
+    //         return ["Message" => "this doner email  was found ", "doner data" => $doner[0]];
+    //     }
+    //     elseif ($request->has("name")) {
+    //         $query = $request->query("name");
+          
+
+    //         $doner= DB::table('doners')->select('*')->where('name','=',$query)->get();
+    //         if (empty($doner)) {
+    //             return ["Message" => "this doner or doners name not found "];
+    //         }
+    //         return ["Message" => "this doner or doners name was found ", "doner data" => $doner];
+    //     }
+
+    //     elseif ($request->has("lastname")) {
+    //         $query = $request->query("lastname");
+          
+
+    //         $doner = DB::table('doners')->select('*')->where('lastname', $query)->get();
+    //         if (empty($doner)) {
+    //             return ["Message" => "this doner or doners lastname not found "];
+    //         }
+    //         return ["Message" => "this doner or doners name was found ", "doner data" => $doner];
+    //     }
+    //     else {
+    //         return ["Message"=> "please specify parameters for search email or name or last name"];
+    //     }
+
+
+    // }
+
+    function showDoners(Request $request){
+
+        $final_results = ["doner_data" => []];
+        $had_params=false;
+        
         if ($request->has("email")) {
             $query = $request->query("email");
           
-
+            $had_params=true;
+        
             $doner=DB::table('doners')->select('*')->where('email','=',$query)->get();
-            if (empty($doner)) {
-                return ["Message" => "this doner email not found "];
-            }
-            return ["Message" => "this doner email  was found ", "doner data" => $doner[0]];
-        }
-        elseif ($request->has("name")) {
-            $query = $request->query("name");
-          
-
+            if (!$doner->isEmpty()) {
+                $final_results['doner_data']= array_merge($final_results["doner_data"], $doner->toArray());
+            // return ["Message" => "this doner email  was found ", "doner_data" => $doner[0]];
+        }}
+      
+           
+          if ($request->has("name")){
+            $had_params=true;
+             $query = $request->query("name");
             $doner= DB::table('doners')->select('*')->where('name','=',$query)->get();
-            if (empty($doner)) {
-                return ["Message" => "this doner or doners name not found "];
+            if (!$doner->isEmpty()) {
+                $final_results['doner_data'] = array_merge($final_results["doner_data"], $doner->toArray());
+               
             }
-            return ["Message" => "this doner or doners name was found ", "doner data" => $doner];
-        }
-
-        elseif ($request->has("lastname")) {
+            // return ["Message" => "this doner or doners name was found ", "doner_data" => $doner];
+        }if($request->has("lastname")){
             $query = $request->query("lastname");
-          
+            $had_params=true;
 
             $doner = DB::table('doners')->select('*')->where('lastname', $query)->get();
-            if (empty($doner)) {
-                return ["Message" => "this doner or doners lastname not found "];
+            if (!$doner->isEmpty()) {
+                $final_results['doner_data'] = array_merge($final_results["doner_data"], $doner->toArray());
+                
             }
-            return ["Message" => "this doner or doners name was found ", "doner data" => $doner];
+            // return ["Message" => "this doner or doners name was found ", "doner_data" => $doner];
         }
-        else {
-            return ["Message"=> "please specify parameters for search email or name or last name"];
+        
+        if(!$had_params ){
+            $doners=Doner::with('donations')->get();
+            return [$doners];
         }
-
-
-    }
-
-    function showDoners(){
-
+        elseif($had_params && empty($final_results))
+            {
+                return ["Message" => "this doner or doners name or lastname or password wasnt found "];
+            }else{
+                return ["Message" => "this doner or doners data were found ", "doner_data" => $final_results];
+            }
+            
+        }
+    
 
         /* $doners=DB::table('doners')->select()->get(); */
-        $doners=Doner::with('donations')->get();
-        
-      
-
-        return [$doners];
-    }
+        // $doners=Doner::with('donations')->get();
+        // return [$doners];
+    
     function showDoner($id){
 
         $doner=Doner::find($id);
@@ -113,7 +159,7 @@ class DonerController extends Controller
             'birthday' => 'date',
             'address'=>'max:225',
             'city' => 'alpha:ascii|max:50',
-            'sex'=> 'max:1,in:m,f',
+            'sex'=> 'max:1,in:m,f,M,F',
             'job'=>'alpha:ascii|max:50'
         ]);
         if (sizeof($data) < 2) {
@@ -124,4 +170,5 @@ class DonerController extends Controller
 
 
     }
+
 }

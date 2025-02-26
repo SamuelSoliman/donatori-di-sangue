@@ -811,7 +811,7 @@ namespace App\Models {
      * @property \Illuminate\Support\Carbon|null $updated_at
      * @property \Illuminate\Support\Carbon|null $created_at
      * @property string|null $remember_token
-     * @property boolean $role
+     * @property bool $admin
      * @property string $password
      * @property \Illuminate\Support\Carbon|null $email_verified_at
      * @property string $email
@@ -829,7 +829,7 @@ namespace App\Models {
      * @method static \Illuminate\Database\Eloquent\Builder|User whereEmail($value)
      * @method static \Illuminate\Database\Eloquent\Builder|User whereEmailVerifiedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder|User wherePassword($value)
-     * @method static \Illuminate\Database\Eloquent\Builder|User whereRole($value)
+     * @method static \Illuminate\Database\Eloquent\Builder|User whereAdmin($value)
      * @method static \Illuminate\Database\Eloquent\Builder|User whereRememberToken($value)
      * @method static \Illuminate\Database\Eloquent\Builder|User whereCreatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder|User whereUpdatedAt($value)
