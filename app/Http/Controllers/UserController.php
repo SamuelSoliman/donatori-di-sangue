@@ -72,7 +72,7 @@ class UserController extends Controller
                     'name' => $user->name,
                     'lastname' => $user->lastname,
                     'email' => $user->email,
-                    'role' => $user->admin ? "admin" : "user",
+                    'role' => $user->admin==1 ? "admin" : "user",
                     'center' => $user->center
                 ];
             });
@@ -200,7 +200,16 @@ class UserController extends Controller
         if (!$user){
             return response()->json(["message"=>"user not found"],404);
         }
-        return response()->json(["data"=>$user],200);
+        $data=[];
+        $data['id']=$user->id;
+        $data['name']=$user->name;
+        $data['lastname']=$user->lastname;
+        $data['email']=$user->email;
+        $role = $user->admin==1 ? "admin":"user";
+        $data['role']=$role;
+        $data['center']=$user->center;
+
+        return response()->json(["data"=>$data],200);
     }
 
     /*  function forgetPassword(Request $request)

@@ -27,9 +27,6 @@ Route::middleware(IsAdmin::class)->group(function () {
 });
 
 
-
-
-
 Route::post('/login', [UserController::class, 'login'])->name('login');
 Route::post('/logout', [UserController::class, 'logout'])->middleware(['auth:sanctum']);
 
