@@ -3,18 +3,12 @@
 use App\Http\Controllers\CenterController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DonationController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DonerController;
-use App\Models\Center;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Middleware\IsAdmin;
-use App\Http\Middleware\IsUser;
-use GuzzleHttp\Middleware;
-use Illuminate\Container\Attributes\Auth;
-use Illuminate\Support\Facades\DB;
-use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
+
 
 
 Route::post('/create-admin', [UserController::class, 'createAdmin']);
@@ -24,6 +18,7 @@ Route::middleware(IsAdmin::class)->group(function () {
     Route::delete('/delete-user', [UserController::class, 'deleteUser']);
     Route::put('/update-user', [UserController::class, 'updateUser']);
     Route::get('/list-users', [UserController::class, 'listUsers']);
+    Route::get('/user/{id}',[UserController::class,'showUser']);
     Route::delete('/delete-doner', [DonerController::class, 'deleteDoner']);
     Route::put('/update-doner', [DonerController::class, 'updateDoner']);
     Route::delete('/delete-center', [CenterController::class, 'deleteCenter']);
@@ -47,8 +42,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/show-doners', [DonerController::class, 'showDoners']);
     Route::post('/create-donation', [DonationController::class, 'createDonation']);
     Route::get('/show-donations',[DonationController::class, 'showDonations']);
-    RoutE::put('/update-donation',[DonationController::class, 'updateDonation']);
+    Route::put('/update-donation',[DonationController::class, 'updateDonation']);
+    Route::get('/donation/{id}',[DonationController::class,'showDonation']);
     Route::get('/list-centers', [CenterController::class,'listCenters']);
+    Route::get('/center/{id}', [CenterController::class, 'showCenter']);
     
     
 });

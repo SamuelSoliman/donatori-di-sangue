@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Center;
+
 use App\Models\Donation;
-use App\Models\Doner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -45,5 +44,11 @@ class DonationController extends Controller
         return response()->json(["Message" => 'doner update is done successfully'], 200);
     }
 
-    
+    function showDonation (int $id){
+        $donation=Donation::find($id);
+        if (!$donation){
+            return response()->json(["message"=>"donation not found"],404);
+        }
+        return response()->json(["data"=>$donation],200);
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Center;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 class CenterController extends Controller
@@ -27,6 +28,14 @@ class CenterController extends Controller
     function listCenters(){
         $centers = DB::table('centers')->select()->get();
         return [$centers];
+    }
+
+    function showCenter(int $id){
+        $center=Center::find($id);
+        if (!$center){
+            return response()->json(["message"=>"center not found"],404);
+        }
+        return response()->json(["data"=>$center],200);
     }
     
 }

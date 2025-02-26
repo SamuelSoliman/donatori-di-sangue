@@ -3,15 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\InsertUserRequest;
-use App\Models\Center;
 use Illuminate\Http\Request;
 use App\Models\User;
-
 use Illuminate\Auth\Events\Registered;
-
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
+
 
 class UserController extends Controller
 {
@@ -34,12 +31,11 @@ class UserController extends Controller
         return [
             // 'data' => $request->user(),
             'data' => [
-
                 "id" => $request->user()->id,
                 "name" => $request->user()->name,
                 "lastname" => $request->user()->lastname,
                 "email" => $request->user()->email,
-                "email_verified_at" =>$request->user()->email_verified_at,
+                "email_verified_at" => $request->user()->email_verified_at,
                 "role" => $role,
                 "created_at" => $request->user()->created_at,
                 "updated_at" => $request->user()->updated_at,
@@ -69,19 +65,19 @@ class UserController extends Controller
     }
     function listUsers(Request $request)
     {
-        $users = DB::table('users')->select('id', 'name', 'lastname', 'email', 'admin')->get()
-        ->map(function($user){
-            return [
-            'id'=>$user->id,
-            'name' => $user->name,
-            'lastname' => $user->lastname,
-            'email' => $user->email,
-            'role' => $user->admin ? "admin" : "user"
-            ] ;
+        $users = DB::table('users')->select('id', 'name', 'lastname', 'email', 'admin', 'center')->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'lastname' => $user->lastname,
+                    'email' => $user->email,
+                    'role' => $user->admin ? "admin" : "user",
+                    'center' => $user->center
+                ];
+            });
 
-        });
-       
-       
+
         return [$users];
     }
     function deleteUser(Request $request)
@@ -101,21 +97,59 @@ class UserController extends Controller
     }
     function UpdateUser(Request $request)
     {
+        // $data = $request->validate([
+        //     'email' => 'required|email|exists:users,email',
+        //     'name' => 'alpha:ascii|max:50',
+        //     'lastname' => 'alpha:ascii|max:50',
+        //     'center' => 'string:exists:centers,location',
+        //     'password' => 'min:8'
+        // ]);
         $data = $request->validate([
-            'email' => 'required|email|exists:users,email',
-            'name' => 'alpha:ascii|max:50',
-            'lastname' => 'alpha:ascii|max:50',
-            'center' => 'string:exists:centers,location',
+            "id" => 'required|exists:users,id',
+            "name" => "alpha:ascii|max:50",
+            "lastname" => "alpha:ascii|max:50",
+            "email" => "email",
+            "role" => "alpha|in:user,admin",
+            "center" => 'alpha|exists:centers,location',
             'password' => 'min:8'
         ]);
         if (sizeof($data) < 2) {
-            return response()->json(["error" => "you must choose the email of the user that it is data needed to be modified and include new values for center or password or name or lastname or all to be modified"], 400);
+            return response()
+            ->json(["error" => "you must choose the id of the user that it is data needed to be modified and include new values for some camps or all to be modified"], 400);
         }
-        if (array_key_exists('password', $data)) {
-            $data['password'] = Hash::make($data['password']);
-        }
+        $updateData = [];
 
-        DB::table('users')->where('email', '=', $data['email'])->update($data);
+    if (array_key_exists('name', $data)) {
+        $updateData['name'] = $data['name'];
+    }
+    if (array_key_exists('lastname', $data)) {
+        $updateData['lastname'] = $data['lastname'];
+    }
+    if (array_key_exists('email', $data)) {
+        $user=DB::table('users')->where('id','=',$data["id"])->first();
+        if ($user->email != $data['email']){
+        $updateData['email'] = $data['email'];
+     }
+    }
+    if (array_key_exists('role', $data)) {
+        $role = $data["role"] == "admin" ? true : false;
+        $updateData['admin'] = $role; 
+    }
+    if (array_key_exists('center', $data)) {
+        $updateData['center'] = $data['center'];
+    }
+    if (array_key_exists('password', $data)) {
+        $updateData['password'] = Hash::make($data['password']);
+    }
+        // To be completed for processing role 
+        // $role = isset($data["role"]) && $data["role"] == "admin" ? true : false;
+        // $data['admin'] = $data['role'];
+        // if (array_key_exists('role', $data)) {
+        //     $data['admin'] = $data['role'] === 'admin'; // Convert to boolean
+        //     unset($data['role']); // Remove 'role' from the data array
+        // }
+
+        DB::table('users')->where('id', '=', $data['id'])->update($updateData);
         return response()->json(["Message" => 'user update is done successfully'], 200);
     }
 
@@ -159,6 +193,14 @@ class UserController extends Controller
         return response()->json([
             'message' => 'Logout successful',
         ], 200);
+    }
+
+    function showUser(int $id){
+        $user=User::find($id);
+        if (!$user){
+            return response()->json(["message"=>"user not found"],404);
+        }
+        return response()->json(["data"=>$user],200);
     }
 
     /*  function forgetPassword(Request $request)
