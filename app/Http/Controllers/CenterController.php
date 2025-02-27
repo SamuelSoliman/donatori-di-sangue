@@ -40,7 +40,8 @@ class CenterController extends Controller
             }
         }
         if (!$had_params) {
-            $centers = DB::table('centers')->select()->get();
+            // $centers = DB::table('centers')->select()->with('donations');
+            $centers =Center::with('donations')->get();
             return [$centers];
         } elseif ($had_params && empty($final_results)) {
             return response()->json(["Message" => "this center isn't found "], 404);
@@ -51,7 +52,7 @@ class CenterController extends Controller
 
     function showCenter(int $id)
     {
-        $center = Center::find($id);
+        $center = Center::where('id',$id)->with('donations')->first();
         if (!$center) {
             return response()->json(["message" => "center not found"], 404);
         }

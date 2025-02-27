@@ -14,6 +14,6 @@ class Donation extends Model
     }
     public function center(): BelongsTo
     {
-        return $this->belongsTo(Center::class);
+        return $this->belongsTo(Center::class,"location","center");
     }
 }

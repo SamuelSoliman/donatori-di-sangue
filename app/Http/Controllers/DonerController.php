@@ -89,6 +89,7 @@ class DonerController extends Controller
 
         $final_results = ["doner_data" => []];
         $had_params = false;
+    
 
         if ($request->has("email")) {
             $query = $request->query("email");
@@ -97,6 +98,7 @@ class DonerController extends Controller
 
             $doner = DB::table('doners')->select('*')->where('email', '=', $query)->get();
             if (!$doner->isEmpty()) {
+                
                 $final_results['doner_data'] = array_merge($final_results["doner_data"], $doner->toArray());
                 // return ["Message" => "this doner email  was found ", "doner_data" => $doner[0]];
             }
@@ -108,6 +110,7 @@ class DonerController extends Controller
             $query = $request->query("name");
             $doner = DB::table('doners')->select('*')->where('name', '=', $query)->get();
             if (!$doner->isEmpty()) {
+               
                 $final_results['doner_data'] = array_merge($final_results["doner_data"], $doner->toArray());
             }
             // return ["Message" => "this doner or doners name was found ", "doner_data" => $doner];
@@ -118,6 +121,7 @@ class DonerController extends Controller
 
             $doner = DB::table('doners')->select('*')->where('lastname', $query)->get();
             if (!$doner->isEmpty()) {
+                
                 $final_results['doner_data'] = array_merge($final_results["doner_data"], $doner->toArray());
             }
             // return ["Message" => "this doner or doners name was found ", "doner_data" => $doner];
@@ -126,7 +130,7 @@ class DonerController extends Controller
         if (!$had_params) {
             $doners = Doner::with('donations')->get();
             return [$doners];
-        } elseif ($had_params && empty($final_results)) {
+        } elseif ($had_params && empty($final_results['doner_data'])) {
             return response()->json(["Message" => "this doner or doners name or lastname or password wasnt found "], 404);
         } else {
             return ["Message" => "this doner or doners data were found ", "doner_data" => $final_results];
@@ -141,7 +145,7 @@ class DonerController extends Controller
     function showDoner($id)
     {
 
-        $doner = Doner::find($id);
+        $doner =Doner::where('id', $id)->with('donations')->first();
         if (!$doner) {
             return response()->json(["message" => "doner not found"], 404);
         }

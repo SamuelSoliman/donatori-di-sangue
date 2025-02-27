@@ -133,7 +133,7 @@ class UserController extends Controller
                     ];
                 });
             return [$users];
-        } elseif ($had_params && empty($final_results)) {
+        } elseif ($had_params && empty($final_results["user_data"])) {
             return response()->json(["Message" => "this user or users name or lastname or password wasnt found "], 404);
         } else {
             return ["Message" => "this user or users data were found ", "data" => $final_results];

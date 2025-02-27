@@ -13,6 +13,6 @@ class Center extends Model
         return $this->hasMany(User::class);
     }
     public function donations() {
-        return $this->hasMany(Donation::class);
+        return $this->hasMany(Donation::class,"center","location");
     }
 }
