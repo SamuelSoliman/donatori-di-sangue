@@ -23,6 +23,7 @@ Route::middleware(IsAdmin::class)->group(function () {
     Route::put('/update-doner', [DonerController::class, 'updateDoner']);
     Route::delete('/delete-center', [CenterController::class, 'deleteCenter']);
     Route::Post('/insert-center', [CenterController::class, 'insertCenter']);
+    Route::put('/update-center',[CenterController::class,'updateCenter']);
     Route::get('/admin-dashboard', [DashboardController::class,'adminDahsboard']);
 });
 

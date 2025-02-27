@@ -65,6 +65,66 @@ class UserController extends Controller
     }
     function listUsers(Request $request)
     {
+        $final_results= ["user_data"=>[]];
+        $had_params = false;
+        if($request->has("email")){
+            $query = $request->query('email');
+            $had_params=true;
+        $user=DB::table('users')->select('id','name','lastname','email','admin', 'center')->where('email','=',$query)->get()->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'name' => $user->name,
+                'lastname' => $user->lastname,
+                'email' => $user->email,
+                'role' => $user->admin==1 ? "admin" : "user",
+                'center' => $user->center
+            ];
+        });
+        if(!$user->isEmpty()){
+            $final_results['user_data']=array_merge($final_results["user_data"], $user->toArray());
+
+        }
+
+        }
+
+        if($request->has("name")){
+            $query = $request->query('name');
+            $had_params=true;
+        $user=DB::table('users')->select('id','name','lastname','email','admin', 'center')->where('name','=',$query)->get()->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'name' => $user->name,
+                'lastname' => $user->lastname,
+                'email' => $user->email,
+                'role' => $user->admin==1 ? "admin" : "user",
+                'center' => $user->center
+            ];
+        });
+        if(!$user->isEmpty()){
+            $final_results['user_data']=array_merge($final_results["user_data"], $user->toArray());
+
+        }
+        }
+
+        if ($request->has("lastname")){
+             $query = $request->query('lastname');
+            $had_params=true;
+        $user=DB::table('users')->select('id','name','lastname','email','admin', 'center')->where('lastname','=',$query)->get()->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'name' => $user->name,
+                'lastname' => $user->lastname,
+                'email' => $user->email,
+                'role' => $user->admin==1 ? "admin" : "user",
+                'center' => $user->center
+            ];
+        });
+        if(!$user->isEmpty()){
+            $final_results['user_data']=array_merge($final_results["user_data"], $user->toArray());
+
+        }
+        }
+        if (!$had_params){
         $users = DB::table('users')->select('id', 'name', 'lastname', 'email', 'admin', 'center')->get()
             ->map(function ($user) {
                 return [
@@ -76,9 +136,15 @@ class UserController extends Controller
                     'center' => $user->center
                 ];
             });
-
-
         return [$users];
+        }
+        elseif($had_params && empty($final_results)){
+            return response()->json(["Message" => "this user or users name or lastname or password wasnt found "],404);
+        }
+        else {
+            return ["Message" => "this user or users data were found ","data"=>$final_results];
+        }
+
     }
     function deleteUser(Request $request)
     {

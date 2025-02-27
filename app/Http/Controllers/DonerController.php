@@ -18,7 +18,7 @@ class DonerController extends Controller
             "birthday"=>'required|date',
             "address"=>'required',
             "email"=>'required|email|unique:doners',
-            "sex"=>'required|max:1|in:M,F,m,f',
+            "sex"=>'required|max:1|in:M,F',
             "job"=>'required|alpha'
         ]);
        
@@ -129,7 +129,7 @@ class DonerController extends Controller
         }
         elseif($had_params && empty($final_results))
             {
-                return ["Message" => "this doner or doners name or lastname or password wasnt found "];
+                return response()->json(["Message" => "this doner or doners name or lastname or password wasnt found "],404);
             }else{
                 return ["Message" => "this doner or doners data were found ", "doner_data" => $final_results];
             }
@@ -169,15 +169,15 @@ class DonerController extends Controller
             "birthday"=> 'date',
             "address"=> 'max:225',
             "email"=> "email",
-            "sex"=> "max:1,in:m,f,M,F",
+            "sex"=> "max:1,in:M,F",
             "job"=> "alpha:ascii|max:50",
             "created_at"=> '',
             "updated_at"=> '',
         ]);
         if (sizeof($data) < 2) {
-            return response()->json(["error" => "you must choose the id of the user that it is data needed to be modified and include new values  be modified"], 400);
+            return response()->json(["error" => "you must choose the id of the user that it's data needed to be modified and include new values  be modified"], 400);
         }
-        DB::table('doners')->where('email', '=', $data['email'])->update($data);
+        DB::table('doners')->where('id', '=', $data['id'])->update($data);
         return response()->json(["Message" => 'doner update is done successfully'], 200);
 
 
