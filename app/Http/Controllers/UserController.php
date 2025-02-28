@@ -64,10 +64,12 @@ class UserController extends Controller
         }
 
         $user = User::where('email', $request->input('email'))->first();
-        event(new Registered($user));
+
+        event(new Registered($user)); //try to test later to be removed
 
         $role = isset($data["admin"]) && $data["admin"] == true ? "admin" : "user";
-        return ["Message" => "succeful creation for user", "data" => ["name" => $data['name'], "lastname" => $data["lastname"], "email" => $data["email"], "center" => $data['center'], "role" => $role]];
+        return response()->json(["Message" => "successful creation for user", "data" => ["name" => $data['name'], "lastname" => $data["lastname"], "email" => $data["email"], "center" => $data['center'], "role" => $role]],201);
+
     }
 
 
@@ -79,7 +81,10 @@ class UserController extends Controller
         if ($request->has("email")) {
             $query = $request->query('email');
             $had_params = true;
-            $user = DB::table('users')->select('id', 'name', 'lastname', 'email', 'admin', 'center')->where('email', '=', $query)->get()->map(function ($user) {
+            $user = DB::table('users')
+            ->select('id', 'name', 'lastname', 'email', 'admin', 'center')
+            ->where('email', '=', $query)
+            ->get()->map(function ($user) {
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -143,7 +148,7 @@ class UserController extends Controller
                 });
             return [$users];
         } elseif ($had_params && empty($final_results["user_data"])) {
-            return response()->json(["Message" => "this user or users name or lastname or password wasnt found "], 404);
+            return response()->json(["Message" => "this user or users name or lastname or email wasnt found "], 404);
         } else {
             return ["Message" => "this user or users data were found ", "data" => $final_results];
         }
@@ -222,8 +227,12 @@ class UserController extends Controller
         //     unset($data['role']); // Remove 'role' from the data array
         // }
 
-        DB::table('users')->where('id', '=', $data['id'])->update($updateData);
+        $updated=DB::table('users')->where('id', '=', $data['id'])->update($updateData);
+        if($updated){
         return response()->json(["Message" => 'user update is done successfully'], 200);
+    }else{
+    return response()->json(["Message"=>'user update failed '],500);
+    }
     }
 
 
@@ -246,19 +255,11 @@ class UserController extends Controller
             return response()->json(['error' => 'Invalid credentials'], 401);
         }
 
-        /*
-        Auth::loginUsingId($user[0]->id); */
+      
         $token = $user->createToken($user->name);
-        $role = '';
-        if ($user->admin == true) {
-            $role = "admin";
-        } else {
-            $role = "user";
-        }
+      
         return response()->json([
-            // 'message' => 'Login successful',
             'token' => $token->plainTextToken,
-            // 'data' => ['name' => $user->name, "lastname" => $user->lastname, "email" => $user->email, "role" => $role]
         ], 200);
     }
 

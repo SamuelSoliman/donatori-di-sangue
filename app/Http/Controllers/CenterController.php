@@ -18,6 +18,7 @@ class CenterController extends Controller
         return response()->json(["Message" => "new center is added"], 201);
     }
 
+
     function deleteCenter(Request $request)
     {
         $data = $request->validate([
@@ -26,6 +27,7 @@ class CenterController extends Controller
         DB::table('centers')->where("location", "=", $data["location"])->delete();
         return response()->json(["Message" => "the center is deleted "], 200);
     }
+
 
     function listCenters(Request $request)
     {
@@ -66,7 +68,7 @@ class CenterController extends Controller
             "location" => ''
         ]);
         if (sizeof($data) < 2) {
-            return response()->json(["error" => "you must choose the id of the center that it's location needed to be modified and include new values  be modified"], 400);
+            return response()->json(["error" => "you must choose the id of the center that it's location needed to be modified and include new values to be modified"], 422);
         }
         DB::table('centers')->where('id', '=', $data['id'])->update($data);
         return response()->json(["Message" => 'center update is done successfully'], 200);

@@ -18,13 +18,12 @@ class DonationController extends Controller
             "center" => 'required|alpha|exists:centers,location',
             "donation_date" => 'required|date'
         ]);
-        /*         $doner=Doner::where('email','=',$data['doner_email'])->first();
-        $center=Center::where('location','=',$data['center'])->first(); */
+      
         $donation = Donation::insert(["doner_email" => $data["doner_email"], "center" => $data['center'], "donation_date" => $data["donation_date"]]);
         if ($donation) {
-            return response()->json(["Message" => "donation insertion complete"], 200);
+            return response()->json(["Message" => "donation creation is complete"], 200);
         } else {
-            return response()->json(["Message" => "donation insertion failed"], 500);
+            return response()->json(["Message" => "donation creation failed"], 500);
         }
     }
 
@@ -85,7 +84,7 @@ class DonationController extends Controller
             "donation_date" => 'date'
         ]);
         if (sizeof($data) < 2) {
-            return response()->json(["error" => "you must choose the id of the donation that it is data needed to be modified and include new values for center or doner email or date or all to be modified"], 400);
+            return response()->json(["error" => "you must choose the id of the donation that it's data needed to be modified and include new values for center or doner email or date or all to be modified"], 400);
         }
 
         DB::table('donations')->where('id', '=', $data['id'])->update($data);

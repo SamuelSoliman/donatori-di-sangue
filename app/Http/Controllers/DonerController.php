@@ -22,8 +22,12 @@ class DonerController extends Controller
             "job" => 'required|alpha'
         ]);
 
-        DB::table('doners')->insert($data);
-        return ["Message" => "successful creation for doner", 'data' => $data];
+        $insertion=DB::table('doners')->insert($data);
+        if ($insertion){
+        return response()->json(["Message" => "successful creation for doner", 'data' => $data],201);
+        }else{
+            return response()->json(["Message"=>"creation of doner failed"],500);
+        }
     }
 
     function deleteDoner(Request $request)
@@ -44,45 +48,7 @@ class DonerController extends Controller
         }
     }
 
-    // function searchDoner(Request $request)
-    // {
-    //     if ($request->has("email")) {
-    //         $query = $request->query("email");
-
-
-    //         $doner=DB::table('doners')->select('*')->where('email','=',$query)->get();
-    //         if (empty($doner)) {
-    //             return ["Message" => "this doner email not found "];
-    //         }
-    //         return ["Message" => "this doner email  was found ", "doner data" => $doner[0]];
-    //     }
-    //     elseif ($request->has("name")) {
-    //         $query = $request->query("name");
-
-
-    //         $doner= DB::table('doners')->select('*')->where('name','=',$query)->get();
-    //         if (empty($doner)) {
-    //             return ["Message" => "this doner or doners name not found "];
-    //         }
-    //         return ["Message" => "this doner or doners name was found ", "doner data" => $doner];
-    //     }
-
-    //     elseif ($request->has("lastname")) {
-    //         $query = $request->query("lastname");
-
-
-    //         $doner = DB::table('doners')->select('*')->where('lastname', $query)->get();
-    //         if (empty($doner)) {
-    //             return ["Message" => "this doner or doners lastname not found "];
-    //         }
-    //         return ["Message" => "this doner or doners name was found ", "doner data" => $doner];
-    //     }
-    //     else {
-    //         return ["Message"=> "please specify parameters for search email or name or last name"];
-    //     }
-
-
-    // }
+    
 
     function showDoners(Request $request)
     {
@@ -100,7 +66,7 @@ class DonerController extends Controller
             if (!$doner->isEmpty()) {
                 
                 $final_results['doner_data'] = array_merge($final_results["doner_data"], $doner->toArray());
-                // return ["Message" => "this doner email  was found ", "doner_data" => $doner[0]];
+                
             }
         }
 
@@ -113,7 +79,7 @@ class DonerController extends Controller
                
                 $final_results['doner_data'] = array_merge($final_results["doner_data"], $doner->toArray());
             }
-            // return ["Message" => "this doner or doners name was found ", "doner_data" => $doner];
+            
         }
         if ($request->has("lastname")) {
             $query = $request->query("lastname");
@@ -124,7 +90,7 @@ class DonerController extends Controller
                 
                 $final_results['doner_data'] = array_merge($final_results["doner_data"], $doner->toArray());
             }
-            // return ["Message" => "this doner or doners name was found ", "doner_data" => $doner];
+           
         }
 
         if (!$had_params) {
@@ -138,9 +104,7 @@ class DonerController extends Controller
     }
 
 
-    /* $doners=DB::table('doners')->select()->get(); */
-    // $doners=Doner::with('donations')->get();
-    // return [$doners];
+
 
     function showDoner($id)
     {
@@ -155,16 +119,7 @@ class DonerController extends Controller
 
     function updateDoner(Request $request)
     {
-        // $data = $request->validate([
-        //     'email'=>'required|email|exists:doners,email',
-        //     'name'=>'alpha:ascii|max:50',
-        //     'lastname' => 'alpha:ascii|max:50',
-        //     'birthday' => 'date',
-        //     'address'=>'max:225',
-        //     'city' => 'alpha:ascii|max:50',
-        //     'sex'=> 'max:1,in:m,f,M,F',
-        //     'job'=>'alpha:ascii|max:50'
-        // ]);
+  
         $data = $request->validate([
             "id" => 'required|numeric|exists:doners,id',
             "name" => 'alpha:ascii|max:50',
@@ -174,11 +129,11 @@ class DonerController extends Controller
             "email" => "email",
             "sex" => "max:1,in:M,F",
             "job" => "alpha:ascii|max:50",
-            "created_at" => '',
-            "updated_at" => '',
+            "created_at" => 'date',
+            "updated_at" => 'date',
         ]);
         if (sizeof($data) < 2) {
-            return response()->json(["error" => "you must choose the id of the user that it's data needed to be modified and include new values  be modified"], 400);
+            return response()->json(["error" => "you must choose the id of the user that it's data needed to be modified and include new values be modified"], 422);
         }
         DB::table('doners')->where('id', '=', $data['id'])->update($data);
         return response()->json(["Message" => 'doner update is done successfully'], 200);
