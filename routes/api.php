@@ -34,6 +34,7 @@ Route::post('/logout', [UserController::class, 'logout'])->middleware(['auth:san
 /* Route::middleware('auth:sanctum')->get('/logout', [UserController::class, 'logout']); */
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user',[UserController::class, 'user']);
+    Route::put('/user/change-password', [UserController::class,'changePassword']);
     Route::post('/insert-doner', [DonerController::class, 'insertDoner']);
     Route::get('/doner/{id}', [DonerController::class, 'showDoner']);
     Route::get('/search-doner', [DonerController::class, 'searchDoner']);
@@ -44,6 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/donation/{id}',[DonationController::class,'showDonation']);
     Route::get('/list-centers', [CenterController::class,'listCenters']);
     Route::get('/center/{id}', [CenterController::class, 'showCenter']);
+   
     
     
 });

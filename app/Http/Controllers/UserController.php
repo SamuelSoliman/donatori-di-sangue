@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 
 class UserController extends Controller
@@ -24,6 +25,8 @@ class UserController extends Controller
         $sql = "INSERT INTO users (name, lastname, email, password, admin) values (:name, :lastname, :email, :password, :admin) ";
         DB::insert($sql, $data);
     }
+
+
     function user(Request $request)
     {
         $role = $request->user()->admin == true ? "admin" : "user";
@@ -44,6 +47,9 @@ class UserController extends Controller
 
         ];
     }
+
+
+
     function createUser(InsertUserRequest $request)
     {
 
@@ -63,6 +69,9 @@ class UserController extends Controller
         $role = isset($data["admin"]) && $data["admin"] == true ? "admin" : "user";
         return ["Message" => "succeful creation for user", "data" => ["name" => $data['name'], "lastname" => $data["lastname"], "email" => $data["email"], "center" => $data['center'], "role" => $role]];
     }
+
+
+
     function listUsers(Request $request)
     {
         $final_results = ["user_data" => []];
@@ -139,6 +148,9 @@ class UserController extends Controller
             return ["Message" => "this user or users data were found ", "data" => $final_results];
         }
     }
+
+
+
     function deleteUser(Request $request)
     {
         $deletedUserEmail = $request->validate([
@@ -154,6 +166,8 @@ class UserController extends Controller
             return response()->json(["Message" => "User delete failed"], 500);
         }
     }
+
+
     function UpdateUser(Request $request)
     {
         // $data = $request->validate([
@@ -212,6 +226,9 @@ class UserController extends Controller
         return response()->json(["Message" => 'user update is done successfully'], 200);
     }
 
+
+
+
     function login(Request $request)
     {
 
@@ -245,6 +262,8 @@ class UserController extends Controller
         ], 200);
     }
 
+
+
     function logout(User $user)
     {
         $user = auth()->user()->tokens()->delete();;
@@ -253,6 +272,9 @@ class UserController extends Controller
             'message' => 'Logout successful',
         ], 200);
     }
+
+
+
 
     function showUser(int $id)
     {
@@ -270,6 +292,28 @@ class UserController extends Controller
         $data['center'] = $user->center;
 
         return response()->json(["data" => $data], 200);
+    }
+
+
+    function changePassword(Request $request){
+       /** @var User $user */
+        $user= Auth::user();
+        $data=$request->validate([
+            'current_password'=>'required',
+            'new_password'=>'required|min:8|confirmed'
+        ]);
+
+        if(!Hash::check($data['current_password'],$user->password)){
+            return response()->json(['errors'=>'current password is wrong'],422);
+
+        }
+        $user->update([
+            'password'=>Hash::make($data['new_password'])
+        ]);
+
+
+        return response()->json(['message' => 'Password changed successfully'], 200);
+
     }
 
     /*  function forgetPassword(Request $request)
