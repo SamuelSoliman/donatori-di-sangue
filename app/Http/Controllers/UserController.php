@@ -54,8 +54,7 @@ class UserController extends Controller
     {
 
         $data = $request->validated();
-        // $center=Center::where("location","=",$data['center'])->first();
-
+      
         $data['password'] = Hash::make($data['password']);
         if (array_key_exists("admin", $data)) {
             DB::table("users")->insert(["name" => $data['name'], "lastname" => $data['lastname'], "email" => $data['email'], "password" => $data["password"], "center" => $data['center'], "admin" => $data['admin']]);

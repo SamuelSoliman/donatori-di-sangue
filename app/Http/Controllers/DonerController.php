@@ -129,8 +129,8 @@ class DonerController extends Controller
             "email" => "email",
             "sex" => "max:1,in:M,F",
             "job" => "alpha:ascii|max:50",
-            "created_at" => 'date',
-            "updated_at" => 'date',
+           // "created_at" => 'date',
+           // "updated_at" => 'date',
         ]);
         if (sizeof($data) < 2) {
             return response()->json(["error" => "you must choose the id of the user that it's data needed to be modified and include new values be modified"], 422);
