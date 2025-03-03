@@ -32,9 +32,9 @@ class DonationController extends Controller
         $final_results = ["donations_data" => []];
         $had_params = false;
         $search_data = $request->validate([
-            "doner_email" => "email|exists:doners,email",
-            "donation_date" => "date|exists:donations,donation_date",
-            "center" => "alpha|exists:centers,location",
+            "doner_email" => "email",
+            "donation_date" => "date",
+            "center" => "alpha"
         ]);
         if (array_key_exists('doner_email', $search_data)) {
             $query = $search_data["doner_email"];
