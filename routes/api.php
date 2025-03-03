@@ -24,7 +24,7 @@ Route::middleware(IsAdmin::class)->group(function () {
     Route::delete('/delete-center', [CenterController::class, 'deleteCenter']);
     Route::Post('/insert-center', [CenterController::class, 'insertCenter']);
     Route::put('/update-center',[CenterController::class,'updateCenter']);
-    Route::get('/admin-dashboard', [DashboardController::class,'adminDahsboard']);
+   
 });
 
 
@@ -45,6 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/donation/{id}',[DonationController::class,'showDonation']);
     Route::get('/list-centers', [CenterController::class,'listCenters']);
     Route::get('/center/{id}', [CenterController::class, 'showCenter']);
+    Route::get('/admin-dashboard', [DashboardController::class,'adminDahsboard']);
    
     
     

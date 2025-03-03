@@ -67,7 +67,7 @@ class DonationController extends Controller
             $donations = DB::table('donations')->select('*')->get();
 
             return [$donations];
-        } elseif ($had_params && empty($final_results)) {
+        } elseif ($had_params && empty($final_results["donations_data"])) {
             return response()->json(["Message" => "donations with the defined search parameters doesnt exist"], 404);
         } else {
 

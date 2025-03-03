@@ -65,8 +65,6 @@ class UserController extends Controller
 
         $user = User::where('email', $request->input('email'))->first();
 
-        event(new Registered($user)); //try to test later to be removed
-
         $role = isset($data["admin"]) && $data["admin"] == true ? "admin" : "user";
         return response()->json(["Message" => "successful creation for user", "data" => ["name" => $data['name'], "lastname" => $data["lastname"], "email" => $data["email"], "center" => $data['center'], "role" => $role]],201);
 

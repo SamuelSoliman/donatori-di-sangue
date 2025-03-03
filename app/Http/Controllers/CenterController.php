@@ -36,8 +36,9 @@ class CenterController extends Controller
         if ($request->has("location")) {
             $query = $request->query("location");
             $had_params = true;
-            $center = DB::table('centers')->select('*')->where('location', '=', $query)->get();
-            if (!$center->isEmpty()) {
+            //$center = DB::table('centers')->select('*')->where('location', '=', $query)->get();
+            $center = Center::where('location', '=', $query)->with('donations')->first();
+            if ($center) {
                 $final_results['center_data'] = array_merge($final_results["center_data"], $center->toArray());
             }
         }
@@ -45,7 +46,7 @@ class CenterController extends Controller
             // $centers = DB::table('centers')->select()->with('donations');
             $centers =Center::with('donations')->get();
             return [$centers];
-        } elseif ($had_params && empty($final_results)) {
+        } elseif ($had_params && empty($final_results["center_data"])) {
             return response()->json(["Message" => "this center isn't found "], 404);
         } else {
             return ["Message" => "this center was found", "data" => $final_results];
