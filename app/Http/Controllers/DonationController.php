@@ -39,7 +39,7 @@ class DonationController extends Controller
         if (array_key_exists('doner_email', $search_data)) {
             $query = $search_data["doner_email"];
             $had_params = true;
-            $donation = DB::table('donations')->select('*')->where('doner_email', '=', $query)->get();
+            $donation = DB::table('donations')->select('*')->where('doner_email', 'like', $query.'%')->get();
 
             if (!$donation->isEmpty()) {
                 $final_results['donations_data'] = array_merge($final_results["donations_data"], $donation->toArray());
@@ -57,7 +57,7 @@ class DonationController extends Controller
         if (array_key_exists('center', $search_data)) {
             $query = $search_data["center"];
             $had_params = true;
-            $donation = DB::table('donations')->select('*')->where('center', '=', $query)->get();
+            $donation = DB::table('donations')->select('*')->where('center', 'like', $query.'%')->get();
 
             if (!$donation->isEmpty()) {
                 $final_results['donations_data'] = array_merge($final_results["donations_data"], $donation->toArray());

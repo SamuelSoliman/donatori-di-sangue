@@ -80,7 +80,7 @@ class UserController extends Controller
             $had_params = true;
             $user = DB::table('users')
             ->select('id', 'name', 'lastname', 'email', 'admin', 'center')
-            ->where('email', '=', $query)
+            ->where('email', 'like', $query.'%')
             ->get()->map(function ($user) {
                 return [
                     'id' => $user->id,
@@ -95,11 +95,30 @@ class UserController extends Controller
                 $final_results['user_data'] = array_merge($final_results["user_data"], $user->toArray());
             }
         }
+        if ($request->has("name") && $request->has("lastname")){
+            $query_name = $request->query('name');
+            $query_lastname= $request->query('lastname');
+            $had_params = true;
+            $user = DB::table('users')->select('id', 'name', 'lastname', 'email', 'admin', 'center')->where('name', 'like', $query_name.'%')->where('lastname','like',$query_lastname.'%')->get()->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'lastname' => $user->lastname,
+                    'email' => $user->email,
+                    'role' => $user->admin == 1 ? "admin" : "user",
+                    'center' => $user->center
+                ];
+            });
+            if (!$user->isEmpty()) {
+                $final_results['user_data'] = array_merge($final_results["user_data"], $user->toArray());
+                return ["Message" => "this user or users data were found ", "data" => $final_results];
+            }
+        }
 
         if ($request->has("name")) {
             $query = $request->query('name');
             $had_params = true;
-            $user = DB::table('users')->select('id', 'name', 'lastname', 'email', 'admin', 'center')->where('name', '=', $query)->get()->map(function ($user) {
+            $user = DB::table('users')->select('id', 'name', 'lastname', 'email', 'admin', 'center')->where('name', 'like', $query.'%')->get()->map(function ($user) {
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -117,7 +136,7 @@ class UserController extends Controller
         if ($request->has("lastname")) {
             $query = $request->query('lastname');
             $had_params = true;
-            $user = DB::table('users')->select('id', 'name', 'lastname', 'email', 'admin', 'center')->where('lastname', '=', $query)->get()->map(function ($user) {
+            $user = DB::table('users')->select('id', 'name', 'lastname', 'email', 'admin', 'center')->where('lastname', 'like', $query.'%')->get()->map(function ($user) {
                 return [
                     'id' => $user->id,
                     'name' => $user->name,

@@ -62,7 +62,7 @@ class DonerController extends Controller
 
             $had_params = true;
 
-            $doner = DB::table('doners')->select('*')->where('email', '=', $query)->get();
+            $doner = DB::table('doners')->select('*')->where('email', 'like', $query.'%')->get();
             if (!$doner->isEmpty()) {
                 
                 $final_results['doner_data'] = array_merge($final_results["doner_data"], $doner->toArray());
@@ -70,11 +70,22 @@ class DonerController extends Controller
             }
         }
 
+        if ($request->has("name") && $request->has("lastname")){
+            $had_params = true;
+            $query_name = $request->query("name");
+            $query_lastname= $request->query("lastname");
 
+            $doner = DB::table('doners')->select('*')->where('name', 'like', $query_name.'%')->where('lastname', 'like', $query_lastname.'%')->get();
+            if (!$doner->isEmpty()) {
+               
+                $final_results['doner_data'] = array_merge($final_results["doner_data"], $doner->toArray());
+                return ["Message" => "this doner or doners data were found ", "doner_data" => $final_results];
+            }
+        }
         if ($request->has("name")) {
             $had_params = true;
             $query = $request->query("name");
-            $doner = DB::table('doners')->select('*')->where('name', '=', $query)->get();
+            $doner = DB::table('doners')->select('*')->where('name', 'like', $query.'%')->get();
             if (!$doner->isEmpty()) {
                
                 $final_results['doner_data'] = array_merge($final_results["doner_data"], $doner->toArray());
@@ -85,7 +96,7 @@ class DonerController extends Controller
             $query = $request->query("lastname");
             $had_params = true;
 
-            $doner = DB::table('doners')->select('*')->where('lastname', $query)->get();
+            $doner = DB::table('doners')->select('*')->where('lastname','like',$query.'%')->get();
             if (!$doner->isEmpty()) {
                 
                 $final_results['doner_data'] = array_merge($final_results["doner_data"], $doner->toArray());

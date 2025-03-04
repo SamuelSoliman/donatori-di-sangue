@@ -37,7 +37,7 @@ class CenterController extends Controller
             $query = $request->query("location");
             $had_params = true;
             //$center = DB::table('centers')->select('*')->where('location', '=', $query)->get();
-            $center = Center::where('location', '=', $query)->with('donations')->first();
+            $center = Center::where('location', 'like', $query.'%')->with('donations')->first();
             if ($center) {
                 $final_results['center_data'] = array_merge($final_results["center_data"], $center->toArray());
             }
