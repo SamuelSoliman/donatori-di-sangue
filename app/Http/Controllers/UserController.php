@@ -54,7 +54,7 @@ class UserController extends Controller
     {
 
         $data = $request->validated();
-      
+
         $data['password'] = Hash::make($data['password']);
         if (array_key_exists("admin", $data)) {
             DB::table("users")->insert(["name" => $data['name'], "lastname" => $data['lastname'], "email" => $data['email'], "password" => $data["password"], "center" => $data['center'], "admin" => $data['admin']]);
@@ -65,8 +65,7 @@ class UserController extends Controller
         $user = User::where('email', $request->input('email'))->first();
 
         $role = isset($data["admin"]) && $data["admin"] == true ? "admin" : "user";
-        return response()->json(["Message" => "successful creation for user", "data" => ["name" => $data['name'], "lastname" => $data["lastname"], "email" => $data["email"], "center" => $data['center'], "role" => $role]],201);
-
+        return response()->json(["Message" => "successful creation for user", "data" => ["name" => $data['name'], "lastname" => $data["lastname"], "email" => $data["email"], "center" => $data['center'], "role" => $role]], 201);
     }
 
 
@@ -79,27 +78,27 @@ class UserController extends Controller
             $query = $request->query('email');
             $had_params = true;
             $user = DB::table('users')
-            ->select('id', 'name', 'lastname', 'email', 'admin', 'center')
-            ->where('email', 'like', $query.'%')
-            ->get()->map(function ($user) {
-                return [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'lastname' => $user->lastname,
-                    'email' => $user->email,
-                    'role' => $user->admin == 1 ? "admin" : "user",
-                    'center' => $user->center
-                ];
-            });
+                ->select('id', 'name', 'lastname', 'email', 'admin', 'center')
+                ->where('email', 'like', $query . '%')
+                ->get()->map(function ($user) {
+                    return [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'lastname' => $user->lastname,
+                        'email' => $user->email,
+                        'role' => $user->admin == 1 ? "admin" : "user",
+                        'center' => $user->center
+                    ];
+                });
             if (!$user->isEmpty()) {
                 $final_results['user_data'] = array_merge($final_results["user_data"], $user->toArray());
             }
         }
-        if ($request->has("name") && $request->has("lastname")){
+        if ($request->has("name") && $request->has("lastname")) {
             $query_name = $request->query('name');
-            $query_lastname= $request->query('lastname');
+            $query_lastname = $request->query('lastname');
             $had_params = true;
-            $user = DB::table('users')->select('id', 'name', 'lastname', 'email', 'admin', 'center')->where('name', 'like', $query_name.'%')->where('lastname','like',$query_lastname.'%')->get()->map(function ($user) {
+            $user = DB::table('users')->select('id', 'name', 'lastname', 'email', 'admin', 'center')->where('name', 'like', $query_name . '%')->where('lastname', 'like', $query_lastname . '%')->get()->map(function ($user) {
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -118,7 +117,7 @@ class UserController extends Controller
         if ($request->has("name")) {
             $query = $request->query('name');
             $had_params = true;
-            $user = DB::table('users')->select('id', 'name', 'lastname', 'email', 'admin', 'center')->where('name', 'like', $query.'%')->get()->map(function ($user) {
+            $user = DB::table('users')->select('id', 'name', 'lastname', 'email', 'admin', 'center')->where('name', 'like', $query . '%')->get()->map(function ($user) {
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -136,7 +135,7 @@ class UserController extends Controller
         if ($request->has("lastname")) {
             $query = $request->query('lastname');
             $had_params = true;
-            $user = DB::table('users')->select('id', 'name', 'lastname', 'email', 'admin', 'center')->where('lastname', 'like', $query.'%')->get()->map(function ($user) {
+            $user = DB::table('users')->select('id', 'name', 'lastname', 'email', 'admin', 'center')->where('lastname', 'like', $query . '%')->get()->map(function ($user) {
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -243,12 +242,12 @@ class UserController extends Controller
         //     unset($data['role']); // Remove 'role' from the data array
         // }
 
-        $updated=DB::table('users')->where('id', '=', $data['id'])->update($updateData);
-        if($updated){
-        return response()->json(["Message" => 'user update is done successfully'], 200);
-    }else{
-    return response()->json(["Message"=>'user update failed '],500);
-    }
+        $updated = DB::table('users')->where('id', '=', $data['id'])->update($updateData);
+        if ($updated) {
+            return response()->json(["Message" => 'user update is done successfully'], 200);
+        } else {
+            return response()->json(["Message" => 'user update failed '], 500);
+        }
     }
 
 
@@ -271,9 +270,13 @@ class UserController extends Controller
             return response()->json(['error' => 'Invalid credentials'], 401);
         }
 
-      
-        $token = $user->createToken($user->name);
-      
+        if ($user->admin == 1) {
+            $token = $user->createToken($user->email, ['admin']);
+        } else {
+            $token = $user->createToken($user->email, ['user']);
+        }
+
+
         return response()->json([
             'token' => $token->plainTextToken,
         ], 200);
@@ -312,25 +315,24 @@ class UserController extends Controller
     }
 
 
-    function changePassword(Request $request){
-       /** @var User $user */
-        $user= Auth::user();
-        $data=$request->validate([
-            'current_password'=>'required',
-            'new_password'=>'required|min:8|confirmed'
+    function changePassword(Request $request)
+    {
+        /** @var User $user */
+        $user = Auth::user();
+        $data = $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|min:8|confirmed'
         ]);
 
-        if(!Hash::check($data['current_password'],$user->password)){
-            return response()->json(['errors'=>'current password is wrong'],422);
-
+        if (!Hash::check($data['current_password'], $user->password)) {
+            return response()->json(['errors' => 'current password is wrong'], 422);
         }
         $user->update([
-            'password'=>Hash::make($data['new_password'])
+            'password' => Hash::make($data['new_password'])
         ]);
 
 
         return response()->json(['message' => 'Password changed successfully'], 200);
-
     }
 
     /*  function forgetPassword(Request $request)

@@ -5,13 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Doner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class DonerController extends Controller
 {
     function insertDoner(Request $request)
     {
-
-
         $data = $request->validate([
             "name" => 'required|alpha|max:55',
             "lastname" => 'required|alpha|max:55',
@@ -21,12 +20,17 @@ class DonerController extends Controller
             "sex" => 'required|max:1|in:M,F',
             "job" => 'required|alpha'
         ]);
+        $age = Carbon::parse($data['birthday'])->age;
 
+        if ($age >= 18) {
         $insertion=DB::table('doners')->insert($data);
         if ($insertion){
         return response()->json(["Message" => "successful creation for doner", 'data' => $data],201);
         }else{
             return response()->json(["Message"=>"creation of doner failed"],500);
+        }
+        }else{
+            return response()->json(["Message"=> "Age of doner must be equal or greater to 18"],422);
         }
     }
 
@@ -106,6 +110,7 @@ class DonerController extends Controller
 
         if (!$had_params) {
             $doners = Doner::with('donations')->get();
+
             return [$doners];
         } elseif ($had_params && empty($final_results['doner_data'])) {
             return response()->json(["Message" => "this doner or doners name or lastname or password wasnt found "], 404);
@@ -119,12 +124,15 @@ class DonerController extends Controller
 
     function showDoner($id)
     {
-
+        
         $doner =Doner::where('id', $id)->with('donations')->first();
         if (!$doner) {
             return response()->json(["message" => "doner not found"], 404);
         }
-        return response()->json(["data" => $doner], 200);
+        $doner_donations_count=Doner::find($id)->donations()->count();
+        $final_results["doner"]=$doner->toArray();
+        $final_results["donations_count"]=$doner_donations_count;
+        return response()->json([$final_results], 200);
     }
 
 
