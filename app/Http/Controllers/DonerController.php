@@ -23,14 +23,14 @@ class DonerController extends Controller
         $age = Carbon::parse($data['birthday'])->age;
 
         if ($age >= 18) {
-        $insertion=DB::table('doners')->insert($data);
-        if ($insertion){
-        return response()->json(["Message" => "successful creation for doner", 'data' => $data],201);
-        }else{
-            return response()->json(["Message"=>"creation of doner failed"],500);
-        }
-        }else{
-            return response()->json(["Message"=> "Age of doner must be equal or greater to 18"],422);
+            $insertion = DB::table('doners')->insert($data);
+            if ($insertion) {
+                return response()->json(["Message" => "successful creation for doner", 'data' => $data], 201);
+            } else {
+                return response()->json(["Message" => "creation of doner failed"], 500);
+            }
+        } else {
+            return response()->json(["Message" => "Age of doner must be equal or greater to 18"], 422);
         }
     }
 
@@ -52,36 +52,35 @@ class DonerController extends Controller
         }
     }
 
-    
+
 
     function showDoners(Request $request)
     {
 
         $final_results = ["doner_data" => []];
         $had_params = false;
-    
+
 
         if ($request->has("email")) {
             $query = $request->query("email");
 
             $had_params = true;
 
-            $doner = DB::table('doners')->select('*')->where('email', 'like', $query.'%')->get();
+            $doner = DB::table('doners')->select('*')->where('email', 'like', $query . '%')->get();
             if (!$doner->isEmpty()) {
-                
+
                 $final_results['doner_data'] = array_merge($final_results["doner_data"], $doner->toArray());
-                
             }
         }
 
-        if ($request->has("name") && $request->has("lastname")){
+        if ($request->has("name") && $request->has("lastname")) {
             $had_params = true;
             $query_name = $request->query("name");
-            $query_lastname= $request->query("lastname");
+            $query_lastname = $request->query("lastname");
 
-            $doner = DB::table('doners')->select('*')->where('name', 'like', $query_name.'%')->where('lastname', 'like', $query_lastname.'%')->get();
+            $doner = DB::table('doners')->select('*')->where('name', 'like', $query_name . '%')->where('lastname', 'like', $query_lastname . '%')->get();
             if (!$doner->isEmpty()) {
-               
+
                 $final_results['doner_data'] = array_merge($final_results["doner_data"], $doner->toArray());
                 return ["Message" => "this doner or doners data were found ", "doner_data" => $final_results];
             }
@@ -89,23 +88,21 @@ class DonerController extends Controller
         if ($request->has("name")) {
             $had_params = true;
             $query = $request->query("name");
-            $doner = DB::table('doners')->select('*')->where('name', 'like', $query.'%')->get();
+            $doner = DB::table('doners')->select('*')->where('name', 'like', $query . '%')->get();
             if (!$doner->isEmpty()) {
-               
+
                 $final_results['doner_data'] = array_merge($final_results["doner_data"], $doner->toArray());
             }
-            
         }
         if ($request->has("lastname")) {
             $query = $request->query("lastname");
             $had_params = true;
 
-            $doner = DB::table('doners')->select('*')->where('lastname','like',$query.'%')->get();
+            $doner = DB::table('doners')->select('*')->where('lastname', 'like', $query . '%')->get();
             if (!$doner->isEmpty()) {
-                
+
                 $final_results['doner_data'] = array_merge($final_results["doner_data"], $doner->toArray());
             }
-           
         }
 
         if (!$had_params) {
@@ -124,21 +121,23 @@ class DonerController extends Controller
 
     function showDoner($id)
     {
-        
-        $doner =Doner::where('id', $id)->with('donations')->first();
+
+        $doner = Doner::where('id', $id)->with('donations')->first();
         if (!$doner) {
             return response()->json(["message" => "doner not found"], 404);
         }
-        $doner_donations_count=Doner::find($id)->donations()->count();
-        $final_results["doner"]=$doner->toArray();
-        $final_results["donations_count"]=$doner_donations_count;
+        $doner_donations_count = Doner::find($id)->donations()->count();
+        $doner_last_donations_date = Doner::find($id)->donations()->orderByDesc('donation_date')->first();
+        $final_results["doner"] = $doner->toArray();
+        $final_results["donations_count"] = $doner_donations_count;
+        $final_results["last_donation_date"] = $doner_last_donations_date->donation_date;
         return response()->json([$final_results], 200);
     }
 
 
     function updateDoner(Request $request)
     {
-  
+
         $data = $request->validate([
             "id" => 'required|numeric|exists:doners,id',
             "name" => 'alpha:ascii|max:50',
@@ -148,8 +147,8 @@ class DonerController extends Controller
             "email" => "email",
             "sex" => "max:1,in:M,F",
             "job" => "alpha:ascii|max:50",
-           // "created_at" => 'date',
-           // "updated_at" => 'date',
+            // "created_at" => 'date',
+            // "updated_at" => 'date',
         ]);
         if (sizeof($data) < 2) {
             return response()->json(["error" => "you must choose the id of the user that it's data needed to be modified and include new values be modified"], 422);
