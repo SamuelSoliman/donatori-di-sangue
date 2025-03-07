@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Center;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -43,9 +44,17 @@ class CenterController extends Controller
             }
         }
         if (!$had_params) {
-            // $centers = DB::table('centers')->select()->with('donations');
+        // $centers = DB::table('centers')->select()->with('donations');
+            $final_results = [];   
             $centers =Center::with('donations')->get();
-            return [$centers];
+            foreach ($centers as $center) {
+                $searched_center = $center->location;
+                $count_users = User::where('Center','=',$searched_center)->count();
+                $center_arr = $center ->toArray();
+                $center_arr["count_of_users_per_center"]=$count_users;
+                $final_results[]= $center_arr;
+            }
+            return $final_results;
         } elseif ($had_params && empty($final_results["center_data"])) {
             return response()->json(["Message" => "this center isn't found "], 404);
         } else {

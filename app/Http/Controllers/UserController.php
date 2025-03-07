@@ -190,13 +190,6 @@ class UserController extends Controller
 
     function UpdateUser(Request $request)
     {
-        // $data = $request->validate([
-        //     'email' => 'required|email|exists:users,email',
-        //     'name' => 'alpha:ascii|max:50',
-        //     'lastname' => 'alpha:ascii|max:50',
-        //     'center' => 'string:exists:centers,location',
-        //     'password' => 'min:8'
-        // ]);
         $data = $request->validate([
             "id" => 'required|exists:users,id',
             "name" => "alpha:ascii|max:50",
@@ -234,13 +227,7 @@ class UserController extends Controller
         if (array_key_exists('password', $data)) {
             $updateData['password'] = Hash::make($data['password']);
         }
-        // To be completed for processing role 
-        // $role = isset($data["role"]) && $data["role"] == "admin" ? true : false;
-        // $data['admin'] = $data['role'];
-        // if (array_key_exists('role', $data)) {
-        //     $data['admin'] = $data['role'] === 'admin'; // Convert to boolean
-        //     unset($data['role']); // Remove 'role' from the data array
-        // }
+      
 
         $updated = DB::table('users')->where('id', '=', $data['id'])->update($updateData);
         if ($updated) {

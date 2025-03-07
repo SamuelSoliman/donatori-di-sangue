@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Donation extends Model
 {
+    public $timestamps = false;
 
     public function doner(): BelongsTo
     {

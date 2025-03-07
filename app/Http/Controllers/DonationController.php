@@ -87,7 +87,8 @@ class DonationController extends Controller
             return response()->json(["error" => "you must choose the id of the donation that it's data needed to be modified and include new values for center or doner email or date or all to be modified"], 400);
         }
 
-        DB::table('donations')->where('id', '=', $data['id'])->update($data);
+        // DB::table('donations')->where('id', '=', $data['id'])->update($data);
+        Donation::where('id','=', $data['id'])->update($data);
         return response()->json(["Message" => 'doner update is done successfully'], 200);
     }
 
