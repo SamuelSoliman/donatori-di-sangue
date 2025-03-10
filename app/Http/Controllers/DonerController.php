@@ -130,7 +130,9 @@ class DonerController extends Controller
         $doner_last_donations_date = Doner::find($id)->donations()->orderByDesc('donation_date')->first();
         $final_results["doner"] = $doner->toArray();
         $final_results["donations_count"] = $doner_donations_count;
+        if($doner_last_donations_date){
         $final_results["last_donation_date"] = $doner_last_donations_date->donation_date;
+        }
         return response()->json([$final_results], 200);
     }
 

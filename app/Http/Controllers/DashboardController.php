@@ -83,7 +83,7 @@ class DashboardController extends Controller
                         ],
                     ], 200);
             } else {
-               
+
                 return response()
                     ->json([
                         "data" => [
@@ -115,7 +115,8 @@ class DashboardController extends Controller
                         "number_of_doners_donated_in_the_center" => $num_of_doners_per_center_user
                     ]
                 ], 200);
-            } else {
+            } 
+            else {
                 return response()->json([
                     "data" => [
                         "number_of_donations_per_user_center" => Cache::get("num_donations_per_center_user"),
