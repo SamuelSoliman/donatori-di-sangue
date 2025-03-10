@@ -74,6 +74,41 @@ class UserController extends Controller
     {
         $final_results = ["user_data" => []];
         $had_params = false;
+        $user=collect();
+        if ($request->has("role")) 
+        {
+            $query= $request->query("role");
+            $had_params = true;
+            if ($query=="admin"){
+                $user= User::where("admin","=", 1)->get()->map(function ($user) {
+                    return [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'lastname' => $user->lastname,
+                        'email' => $user->email,
+                        'role' => $user->admin == 1 ? "admin" : "user",
+                        'center' => $user->center
+                    ];
+                });;
+            }elseif ($query== "user"){
+                $user= User::where("admin","=",0)->get()
+                ->map(function ($user) {
+                    return [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'lastname' => $user->lastname,
+                        'email' => $user->email,
+                        'role' => $user->admin == 1 ? "admin" : "user",
+                        'center' => $user->center
+                    ];
+                });
+            }
+            if (!$user->isEmpty()){
+                $final_results['user_data'] = array_merge($final_results["user_data"], $user->toArray());
+            }
+
+
+        }
         if ($request->has("email")) {
             $query = $request->query('email');
             $had_params = true;
@@ -163,7 +198,7 @@ class UserController extends Controller
                 });
             return [$users];
         } elseif ($had_params && empty($final_results["user_data"])) {
-            return response()->json(["Message" => "this user or users name or lastname or email wasnt found "], 404);
+            return response()->json(["Message" => "this user or users name or lastname or email or role wasnt found "], 404);
         } else {
             return ["Message" => "this user or users data were found ", "data" => $final_results];
         }
