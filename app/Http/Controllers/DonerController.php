@@ -61,12 +61,24 @@ class DonerController extends Controller
         $had_params = false;
 
 
+// $center = Center::where("id", $request->id);
+
+// if ($filterX) {
+//     $center = $center->whereX();
+// }
+
+// if ($filterY) {
+//     $center = $center->whereY();
+// }
+
+// $result = $center->get();
+
+
         if ($request->has("email")) {
             $query = $request->query("email");
 
             $had_params = true;
-
-            $doner = DB::table('doners')->select('*')->where('email', 'like', $query . '%')->get();
+            $doner = Doner::where('email','like', $query . '%')->get();
             if (!$doner->isEmpty()) {
 
                 $final_results['doner_data'] = array_merge($final_results["doner_data"], $doner->toArray());
@@ -78,7 +90,9 @@ class DonerController extends Controller
             $query_name = $request->query("name");
             $query_lastname = $request->query("lastname");
 
-            $doner = DB::table('doners')->select('*')->where('name', 'like', $query_name . '%')->where('lastname', 'like', $query_lastname . '%')->get();
+           // $doner = DB::table('doners')->select('*')->where('name', 'like', $query_name . '%')->where('lastname', 'like', $query_lastname . '%')->get();
+            $doner = Doner::where('name','like', $query_name . '%')
+            ->where('lastname', 'like', $query_lastname.'%')->get();
             if (!$doner->isEmpty()) {
 
                 $final_results['doner_data'] = array_merge($final_results["doner_data"], $doner->toArray());
@@ -88,7 +102,8 @@ class DonerController extends Controller
         if ($request->has("name")) {
             $had_params = true;
             $query = $request->query("name");
-            $doner = DB::table('doners')->select('*')->where('name', 'like', $query . '%')->get();
+            //$doner = DB::table('doners')->select('*')->where('name', 'like', $query . '%')->get();
+            $doner = Doner::where('name', 'like', $query . '%')->get();
             if (!$doner->isEmpty()) {
 
                 $final_results['doner_data'] = array_merge($final_results["doner_data"], $doner->toArray());
@@ -98,7 +113,8 @@ class DonerController extends Controller
             $query = $request->query("lastname");
             $had_params = true;
 
-            $doner = DB::table('doners')->select('*')->where('lastname', 'like', $query . '%')->get();
+            //$doner = DB::table('doners')->select('*')->where('lastname', 'like', $query . '%')->get();
+            $doner = Doner::where('lastname', 'like', $query . '%')->get();
             if (!$doner->isEmpty()) {
 
                 $final_results['doner_data'] = array_merge($final_results["doner_data"], $doner->toArray());

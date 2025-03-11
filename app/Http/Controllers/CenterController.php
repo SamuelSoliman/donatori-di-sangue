@@ -14,8 +14,8 @@ class CenterController extends Controller
         $data = $request->validate([
             "location" => "required|unique:centers,location"
         ]);
-        DB::table('centers')->insert($data);
-
+       // DB::table('centers')->insert($data);
+        Center::insert($data);
         return response()->json(["Message" => "new center is added"], 201);
     }
 
@@ -25,7 +25,8 @@ class CenterController extends Controller
         $data = $request->validate([
             "location" => "required|exists:centers,location"
         ]);
-        DB::table('centers')->where("location", "=", $data["location"])->delete();
+        //DB::table('centers')->where("location", "=", $data["location"])->delete();
+        Center::where("location", "=", $data["location"])->delete();
         return response()->json(["Message" => "the center is deleted "], 200);
     }
 
@@ -80,7 +81,8 @@ class CenterController extends Controller
         if (sizeof($data) < 2) {
             return response()->json(["error" => "you must choose the id of the center that it's location needed to be modified and include new values to be modified"], 422);
         }
-        DB::table('centers')->where('id', '=', $data['id'])->update($data);
+     //   DB::table('centers')->where('id', '=', $data['id'])->update($data);
+        Center::where('id', '=', $data['id'] )->update($data);
         return response()->json(["Message" => 'center update is done successfully'], 200);
     }
 }

@@ -1080,7 +1080,7 @@ namespace App\Models {
      * @method static mixed macroCall($method, $parameters)
      * @mixin \Illuminate\Database\Query\Builder
      */
-    class User extends \Illuminate\Database\Eloquent\Model
+    class User extends \Illuminate\Foundation\Auth\User
     {
         //
     }

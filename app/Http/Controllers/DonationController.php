@@ -39,7 +39,8 @@ class DonationController extends Controller
         if (array_key_exists('doner_email', $search_data)) {
             $query = $search_data["doner_email"];
             $had_params = true;
-            $donation = DB::table('donations')->select('*')->where('doner_email', 'like', $query.'%')->get();
+            //  $donation = DB::table('donations')->select('*')->where('doner_email', 'like', $query.'%')->get();
+            $donation= Donation::where('doner_email', 'like', $query.'%')->get();
 
             if (!$donation->isEmpty()) {
                 $final_results['donations_data'] = array_merge($final_results["donations_data"], $donation->toArray());
@@ -48,8 +49,8 @@ class DonationController extends Controller
         if (array_key_exists('donation_date', $search_data)) {
             $query = $search_data["donation_date"];
             $had_params = true;
-            $donation = DB::table('donations')->select('*')->where('donation_date', '=', $query)->get();
-
+            //$donation = DB::table('donations')->select('*')->where('donation_date', '=', $query)->get();
+            $donation = Donation::where("donations_date", "=", $query)->get();
             if (!$donation->isEmpty()) {
                 $final_results['donations_data'] = array_merge($final_results["donations_data"], $donation->toArray());
             }
@@ -57,14 +58,15 @@ class DonationController extends Controller
         if (array_key_exists('center', $search_data)) {
             $query = $search_data["center"];
             $had_params = true;
-            $donation = DB::table('donations')->select('*')->where('center', 'like', $query.'%')->get();
-
+          //  $donation = DB::table('donations')->select('*')->where('center', 'like', $query.'%')->get();
+            $donation = Donation::where("center", "like",$query.'%')->get();
             if (!$donation->isEmpty()) {
                 $final_results['donations_data'] = array_merge($final_results["donations_data"], $donation->toArray());
             }
         }
         if (!$had_params) {
             $donations = DB::table('donations')->select('*')->get();
+            $donations = Donation::all();
 
             return [$donations];
         } elseif ($had_params && empty($final_results["donations_data"])) {
