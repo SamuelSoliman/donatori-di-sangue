@@ -45,10 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/donation/{id}',[DonationController::class,'showDonation']);
     Route::get('/list-centers', [CenterController::class,'listCenters']);
     Route::get('/center/{id}', [CenterController::class, 'showCenter']);
-    Route::get('/admin-dashboard', [DashboardController::class,'adminDahsboard']);
-   
-    
-    
+    Route::get('/admin-dashboard', [DashboardController::class,'adminDahsboard']);   
 });
 
 Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword'])->middleware('guest')->name('password.email');
