@@ -23,4 +23,8 @@ class Donation extends Model
     {
         return $this->belongsTo(Center::class,"location","center");
     }
+    // public function getCountOfUsersPerCenterAttribute()
+    // {
+    //     return User::where('Center', '=', $this->location)->count();
+    // }
 }

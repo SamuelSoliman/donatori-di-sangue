@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 
 use App\Models\Donation;
+use App\Models\Scopes\DonationsScope;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Http\Resources\DonationResource;
 
 use function Laravel\Prompts\search;
 
@@ -18,7 +20,7 @@ class DonationController extends Controller
             "center" => 'required|alpha|exists:centers,location',
             "donation_date" => 'required|date'
         ]);
-      
+
         $donation = Donation::insert(["doner_email" => $data["doner_email"], "center" => $data['center'], "donation_date" => $data["donation_date"]]);
         if ($donation) {
             return response()->json(["Message" => "donation creation is complete"], 200);
@@ -29,52 +31,72 @@ class DonationController extends Controller
 
     function showDonations(Request $request)
     {
-        $final_results = ["donations_data" => []];
-        $had_params = false;
-        $search_data = $request->validate([
-            "doner_email" => "email",
-            "donation_date" => "date",
-            "center" => "alpha"
-        ]);
-        if (array_key_exists('doner_email', $search_data)) {
-            $query = $search_data["doner_email"];
-            $had_params = true;
-            //  $donation = DB::table('donations')->select('*')->where('doner_email', 'like', $query.'%')->get();
-            $donation= Donation::where('doner_email', 'like', $query.'%')->get();
+        $donation = Donation::query();
+        if ($request->user()->tokenCan("admin")) {
+            $donation = $donation->withoutGlobalScope(DonationsScope::class);
+        }
+        if ($request->has("doner_email")) {
+            $query = $request->query("doner_email");
+            $donation = $donation->where("doner_email", "LIKE", $query . "%");
+        }
+        if ($request->has("donation_date")) {
+            $query = $request->query("donation_date");
+            $donation = $donation->where("donation_date", "=", $query);
+        }
+        if ($request->has("center")) {
+            $query = $request->query("center");
+            $donation = $donation->where("center", "LIKE", $query . '%');
+        }
 
-            if (!$donation->isEmpty()) {
-                $final_results['donations_data'] = array_merge($final_results["donations_data"], $donation->toArray());
-            }
-        }
-        if (array_key_exists('donation_date', $search_data)) {
-            $query = $search_data["donation_date"];
-            $had_params = true;
-            //$donation = DB::table('donations')->select('*')->where('donation_date', '=', $query)->get();
-            $donation = Donation::where("donations_date", "=", $query)->get();
-            if (!$donation->isEmpty()) {
-                $final_results['donations_data'] = array_merge($final_results["donations_data"], $donation->toArray());
-            }
-        }
-        if (array_key_exists('center', $search_data)) {
-            $query = $search_data["center"];
-            $had_params = true;
-          //  $donation = DB::table('donations')->select('*')->where('center', 'like', $query.'%')->get();
-            $donation = Donation::where("center", "like",$query.'%')->get();
-            if (!$donation->isEmpty()) {
-                $final_results['donations_data'] = array_merge($final_results["donations_data"], $donation->toArray());
-            }
-        }
-        if (!$had_params) {
-            $donations = DB::table('donations')->select('*')->get();
-            $donations = Donation::all();
+        $results = $donation->get();
+        return DonationResource::collection($results);
 
-            return [$donations];
-        } elseif ($had_params && empty($final_results["donations_data"])) {
-            return response()->json(["Message" => "donations with the defined search parameters doesnt exist"], 404);
-        } else {
+        // $final_results = ["donations_data" => []];
+        // $had_params = false;
+        // $search_data = $request->validate([
+        //     "doner_email" => "email",
+        //     "donation_date" => "date",
+        //     "center" => "alpha"
+        // ]);
+        // if (array_key_exists('doner_email', $search_data)) {
+        //     $query = $search_data["doner_email"];
+        //     $had_params = true;
+        //     //  $donation = DB::table('donations')->select('*')->where('doner_email', 'like', $query.'%')->get();
+        //     $donation= Donation::where('doner_email', 'like', $query.'%')->get();
 
-            return ["Message" => "donation or donations data were found ", "data" => $final_results];
-        }
+        //     if (!$donation->isEmpty()) {
+        //         $final_results['donations_data'] = array_merge($final_results["donations_data"], $donation->toArray());
+        //     }
+        // }
+        // if (array_key_exists('donation_date', $search_data)) {
+        //     $query = $search_data["donation_date"];
+        //     $had_params = true;
+        //     //$donation = DB::table('donations')->select('*')->where('donation_date', '=', $query)->get();
+        //     $donation = Donation::where("donations_date", "=", $query)->get();
+        //     if (!$donation->isEmpty()) {
+        //         $final_results['donations_data'] = array_merge($final_results["donations_data"], $donation->toArray());
+        //     }
+        // }
+        // if (array_key_exists('center', $search_data)) {
+        //     $query = $search_data["center"];
+        //     $had_params = true;
+        //   //  $donation = DB::table('donations')->select('*')->where('center', 'like', $query.'%')->get();
+        //     $donation = Donation::where("center", "like",$query.'%')->get();
+        //     if (!$donation->isEmpty()) {
+        //         $final_results['donations_data'] = array_merge($final_results["donations_data"], $donation->toArray());
+        //     }
+        // }
+        // if (!$had_params) {
+        //     $donations = DB::table('donations')->select('*')->get();
+        //     $donations = Donation::all();
+
+        //     return [$donations];
+        // } elseif ($had_params && empty($final_results["donations_data"])) {
+        //     return response()->json(["Message" => "donations with the defined search parameters doesnt exist"], 404);
+        // } else {
+
+        //     return ["Message" => "donation or donations data were found ", "data" => $final_results];
+        // }
     }
 
     function updateDonation(Request $request)
@@ -90,16 +112,23 @@ class DonationController extends Controller
         }
 
         // DB::table('donations')->where('id', '=', $data['id'])->update($data);
-        Donation::where('id','=', $data['id'])->update($data);
+        Donation::where('id', '=', $data['id'])->update($data);
         return response()->json(["Message" => 'doner update is done successfully'], 200);
     }
 
-    function showDonation(int $id)
+    function showDonation(int $id, Request $request)
     {
-        $donation = Donation::find($id);
+        $donation = Donation::query();
+        if ($request->user()->tokenCan('admin')) {
+            $donation = $donation->withoutGlobalScope(DonationsScope::class)->find($id);
+        } else {
+            $donation = $donation->find($id);
+        }
+       
         if (!$donation) {
             return response()->json(["message" => "donation not found"], 404);
         }
-        return response()->json(["data" => $donation], 200);
+        // return response()->json(["data" => $donation], 200);
+        return new DonationResource($donation);
     }
 }
