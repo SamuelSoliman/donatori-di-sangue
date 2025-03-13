@@ -9,19 +9,24 @@ use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 class Donation extends Model
 {
     public $timestamps = false;
-
+    // protected $fillable = [
+    //     'doner_email',
+    //     'donation_date',
+    //     'center',
+    // ];
+    protected $guarded = [];
     //#[ScopedBy([DonationsScope::class])]
     protected static function booted()
     {
         static::addGlobalScope(new DonationsScope);
     }
-    public function doner(): BelongsTo
+    public function donerRelation(): BelongsTo
     {
         return $this->belongsTo(Doner::class, 'doner_email', 'email');
     }
-    public function center(): BelongsTo
+    public function centerRelation(): BelongsTo
     {
-        return $this->belongsTo(Center::class,"location","center");
+        return $this->belongsTo(Center::class,"center","location");
     }
     // public function getCountOfUsersPerCenterAttribute()
     // {

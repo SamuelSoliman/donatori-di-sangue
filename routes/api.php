@@ -13,7 +13,6 @@ use App\Http\Middleware\IsAdmin;
 
 Route::post('/create-admin', [UserController::class, 'createAdmin']);
 Route::middleware(IsAdmin::class)->group(function () {
-
     Route::post('/register-user', [UserController::class, 'createUser']);
     Route::delete('/delete-user', [UserController::class, 'deleteUser']);
     Route::put('/update-user', [UserController::class, 'updateUser']);

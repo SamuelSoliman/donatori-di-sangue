@@ -271,8 +271,8 @@ namespace App\Models {
      * @property string|null $donation_date
      * @property string $doner_email
      * @property int $id
-     * @property-read \App\Models\Doner $doner
-     * @property-read \App\Models\Center $center
+     * @property-read \App\Models\Doner $donerRelation
+     * @property-read \App\Models\Center $centerRelation
      * @method static \Illuminate\Database\Eloquent\Builder<Donation>|Donation whereId($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Donation>|Donation whereDonerEmail($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Donation>|Donation whereDonationDate($value)

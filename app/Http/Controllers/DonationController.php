@@ -104,16 +104,26 @@ class DonationController extends Controller
         $data = $request->validate([
             "id" => 'required|exists:donations,id',
             "doner_email" => 'email|exists:doners,email',
-            "center" => 'alpha|exists:centers,location',
-            "donation_date" => 'date'
+            "donation_date" => 'date',
+            "center" => 'alpha|exists:centers,location'
+
         ]);
         if (sizeof($data) < 2) {
             return response()->json(["error" => "you must choose the id of the donation that it's data needed to be modified and include new values for center or doner email or date or all to be modified"], 400);
         }
 
-        // DB::table('donations')->where('id', '=', $data['id'])->update($data);
-        Donation::where('id', '=', $data['id'])->update($data);
-        return response()->json(["Message" => 'doner update is done successfully'], 200);
+        //  DB::table('donations')->where('id', '=', $data['id'])->update($data);
+        //    $updateData = collect($data)->except('id')->toArray();
+
+        //    $update = Donation::where('id', $data['id'])->update($updateData);
+        if ($request->user()->tokenCan("admin"))
+            $update = Donation::withoutGlobalScope(DonationsScope::class)->where('id', '=', $data['id'])->update($data);
+        else
+            $update = Donation::where('id', '=', $data['id'])->update($data);
+        if ($update)
+            return response()->json(["Message" => 'donation  update is done successfully'], 200);
+        else
+            return response()->json(['message' => 'update failed'], 500);
     }
 
     function showDonation(int $id, Request $request)
@@ -124,7 +134,7 @@ class DonationController extends Controller
         } else {
             $donation = $donation->find($id);
         }
-       
+
         if (!$donation) {
             return response()->json(["message" => "donation not found"], 404);
         }
