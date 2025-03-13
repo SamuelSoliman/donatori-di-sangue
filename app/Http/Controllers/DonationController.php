@@ -6,10 +6,9 @@ namespace App\Http\Controllers;
 use App\Models\Donation;
 use App\Models\Scopes\DonationsScope;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Http\Resources\DonationResource;
 
-use function Laravel\Prompts\search;
+
 
 class DonationController extends Controller
 {
