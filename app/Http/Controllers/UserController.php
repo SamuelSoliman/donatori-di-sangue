@@ -57,14 +57,14 @@ class UserController extends Controller
 
         $data['password'] = Hash::make($data['password']);
         if (array_key_exists("admin", $data)) {
-          //  DB::table("users")->insert(["name" => $data['name'], "lastname" => $data['lastname'], "email" => $data['email'], "password" => $data["password"], "center" => $data['center'], "admin" => $data['admin']]);
+            //  DB::table("users")->insert(["name" => $data['name'], "lastname" => $data['lastname'], "email" => $data['email'], "password" => $data["password"], "center" => $data['center'], "admin" => $data['admin']]);
             User::insert(["name" => $data['name'], "lastname" => $data['lastname'], "email" => $data['email'], "password" => $data["password"], "center" => $data['center'], "admin" => $data['admin']]);
         } else {
-          //  DB::table("users")->insert(["name" => $data['name'], "lastname" => $data['lastname'], "email" => $data['email'], "password" => $data["password"], "center" => $data['center']]);
+            //  DB::table("users")->insert(["name" => $data['name'], "lastname" => $data['lastname'], "email" => $data['email'], "password" => $data["password"], "center" => $data['center']]);
             User::insert(["name" => $data['name'], "lastname" => $data['lastname'], "email" => $data['email'], "password" => $data["password"], "center" => $data['center']]);
         }
 
-       // $user = User::where('email', $request->input('email'))->first();
+        // $user = User::where('email', $request->input('email'))->first();
 
         $role = isset($data["admin"]) && $data["admin"] == true ? "admin" : "user";
         return response()->json(["Message" => "successful creation for user", "data" => ["name" => $data['name'], "lastname" => $data["lastname"], "email" => $data["email"], "center" => $data['center'], "role" => $role]], 201);
@@ -74,30 +74,33 @@ class UserController extends Controller
 
     function listUsers(Request $request)
     {
-        $user=User::query();
+        $user = User::query();
         $per_page = request()->get('perpage', 3);
-        $page = $request->get('page',1);
-        if ($request->has("role")){
+        $page = $request->get('page', 1);
+        if ($request->has("role")) {
             $query = $request->query("role");
-            if ($query =="admin"){
-                $user=$user->where("admin", '=',1);
-            }elseif ($query == "user"){
-                $user=$user->where("admin","=",0);
+            if ($query == "admin") {
+                $user = $user->where("admin", '=', 1);
+            } elseif ($query == "user") {
+                $user = $user->where("admin", "=", 0);
             }
         }
-        if ($request->has("email")){
+        if ($request->has("email")) {
             $query = $request->query("email");
-            $user=$user->where("email",'like', $query.'%');
+            $user = $user->where("email", 'like', $query . '%');
         }
-        if ($request->has('name')){
+        if ($request->has('name')) {
             $query = $request->query('name');
-            $user=$user->where('name','like', $query.'%');
+            $user = $user->where('name', 'like', $query . '%');
         }
-        if ($request->has('lastname')){
+        if ($request->has('lastname')) {
             $query = $request->query('lastname');
-            $user=$user->where('lastname','like', $query.'%');
+            $user = $user->where('lastname', 'like', $query . '%');
         }
-        $results=$user->paginate($per_page,["*"],"page",$page);
+        if ($per_page == -1)
+            $results = $user->get();
+        else
+            $results = $user->paginate($per_page, ["*"], "page", $page);
         return UserResource::collection($results);
         // $final_results = ["user_data" => []];
         // $had_params = false;
@@ -239,7 +242,7 @@ class UserController extends Controller
             'email' => 'required|email|exists:users,email'
         ]);
 
-       // $deletedUser = DB::table('users')->where('email', '=', $deletedUserEmail)->delete();
+        // $deletedUser = DB::table('users')->where('email', '=', $deletedUserEmail)->delete();
         $deletedUser = User::where('email', '=', $deletedUserEmail)->delete();
 
         if ($deletedUser) {
@@ -290,9 +293,9 @@ class UserController extends Controller
         if (array_key_exists('password', $data)) {
             $updateData['password'] = Hash::make($data['password']);
         }
-      
 
-       // $updated = DB::table('users')->where('id', '=', $data['id'])->update($updateData);
+
+        // $updated = DB::table('users')->where('id', '=', $data['id'])->update($updateData);
         $updated = User::where('id', '=', $data['id'])->update($updateData);
         if ($updated) {
             return response()->json(["Message" => 'user update is done successfully'], 200);

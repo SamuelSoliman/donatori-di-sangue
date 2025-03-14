@@ -60,29 +60,39 @@ class DonerController extends Controller
     function showDoners(Request $request)
     {
         $per_page = request()->get('perpage', 3);
-        $page = $request->get('page',1);
+
+        $page = $request->get('page', 1);
         $doner = Doner::query();
         if ($request->has("email")) {
             $query = $request->query("email");
-            $doner = $doner->where("email", "like", $query.'%');
+            $doner = $doner->where("email", "like", $query . '%');
         }
         if ($request->has("name")) {
             $query = $request->query("name");
-            $doner = $doner->where("name", "like", $query.'%');
+            $doner = $doner->where("name", "like", $query . '%');
         }
         if ($request->has("lastname")) {
             $query = $request->query("lastname");
-            $doner = $doner->where("lastname","like",$query.'%');
+            $doner = $doner->where("lastname", "like", $query . '%');
         }
         if ($request->user()->tokenCan('admin')) {
             // $results = $center->with("donations")->withoutGlobalScope(DonationsScope::class)->get();
-           
+            if ($per_page == -1) {
+                $results = $doner->with(["donations" => function ($query) {
+                    $query->withoutGlobalScope(DonationsScope::class);
+                }])->get();
+            }else {
             $results = $doner->with(["donations" => function ($query) {
                 $query->withoutGlobalScope(DonationsScope::class);
-            }])->paginate($per_page,["*"],"page",$page);
-        }else{
+            }])->paginate($per_page, ["*"], "page", $page);
+        }
+        } else {
             // $perpage = request()->get('perpage', 3);
-        $results=$doner->with("donations")->paginate($per_page,["*"],"page",$page);
+            if ($per_page == -1){
+                $results = $doner->with("donations")->get();
+            }else {
+                 $results = $doner->with("donations")->paginate($per_page, ["*"], "page", $page);
+            }
         }
         return DonerResource::collection($results);
         // $center = Center::where("id", $request->id);
@@ -167,20 +177,20 @@ class DonerController extends Controller
     {
 
         // $doner = Doner::where('id', $id)->with('donations')->first();
-        $doner = Doner::where ("id",'=', $id);
+        $doner = Doner::where("id", '=', $id);
         if ($request->user()->tokenCan('admin')) {
             // $results = $center->with("donations")->withoutGlobalScope(DonationsScope::class)->get();
             $doner = $doner->with(["donations" => function ($query) {
                 $query->withoutGlobalScope(DonationsScope::class);
             }]);
-        }else {
+        } else {
             $doner = $doner->with("donations");
         }
-         $doner = $doner ->first();
+        $doner = $doner->first();
         if (!$doner) {
             return response()->json(["message" => "doner not found"], 404);
         }
-        return new DonerResource( $doner );
+        return new DonerResource($doner);
         // $doner_donations_count = Doner::find($id)->donations()->count();
         // $doner_last_donations_date = Doner::find($id)->donations()->orderByDesc('donation_date')->first();
         // $final_results["doner"] = $doner->toArray();
@@ -210,8 +220,8 @@ class DonerController extends Controller
         if (sizeof($data) < 2) {
             return response()->json(["error" => "you must choose the id of the user that it's data needed to be modified and include new values be modified"], 422);
         }
-       // DB::table('doners')->where('id', '=', $data['id'])->update($data);
-        Doner::where('id','=', $data['id'])->update($data);
+        // DB::table('doners')->where('id', '=', $data['id'])->update($data);
+        Doner::where('id', '=', $data['id'])->update($data);
         return response()->json(["Message" => 'doner update is done successfully'], 200);
     }
 }

@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\CenterResource;
+
 class CenterController extends Controller
 {
     function insertCenter(Request $request)
@@ -15,7 +16,7 @@ class CenterController extends Controller
         $data = $request->validate([
             "location" => "required|unique:centers,location"
         ]);
-       // DB::table('centers')->insert($data);
+        // DB::table('centers')->insert($data);
         Center::insert($data);
         return response()->json(["Message" => "new center is added"], 201);
     }
@@ -35,25 +36,34 @@ class CenterController extends Controller
     function listCenters(Request $request)
     {
         $per_page = request()->get('perpage', 3);
-        $page = $request->get('page',1);
+        $page = $request->get('page', 1);
         $center = Center::query();
         if ($request->has("location")) {
             $query = $request->query("location");
-            $center = $center->where("location","like", $query.'%');
+            $center = $center->where("location", "like", $query . '%');
         }
-        $results=null;
+        $results = null;
         if ($request->user()->tokenCan('admin')) {
-        // $results = $center->with("donations")->withoutGlobalScope(DonationsScope::class)->get();
-        $results = $center->with(["donations" => function ($query) {
-            $query->withoutGlobalScope(DonationsScope::class);
-        }])->paginate($per_page,["*"],"page",$page);
-        }else{
-            $results= $center->with("donations")->paginate($per_page,["*"],"page",$page);
+            // $results = $center->with("donations")->withoutGlobalScope(DonationsScope::class)->get();
+            if ($per_page==-1){
+                $results = $center->with(["donations" => function ($query) {
+                    $query->withoutGlobalScope(DonationsScope::class);
+                }])->get();
+            }else {
+            $results = $center->with(["donations" => function ($query) {
+                $query->withoutGlobalScope(DonationsScope::class);
+            }])->paginate($per_page, ["*"], "page", $page);
+            }
+        } else {
+            if ($per_page== -1){
+                $results = $center->with("donations")->get();
+            } else {
+                $results = $center->with("donations")->paginate($per_page, ["*"], "page", $page);
+            }
         }
         foreach ($results as $result) {
             $searched_center = $result->location;
-            $result->count_of_users_per_center=User::where('Center','=',$searched_center)->count();
-            
+            $result->count_of_users_per_center = User::where('Center', '=', $searched_center)->count();
         }
         return CenterResource::collection($results);
 
@@ -88,16 +98,16 @@ class CenterController extends Controller
     }
 
     function showCenter(int $id, Request $request)
-    {   
-        $center = Center::where('id','=', $id);
+    {
+        $center = Center::where('id', '=', $id);
         if ($request->user()->tokenCan('admin')) {
-            $center=$center->with(["donations"=>function($query){
+            $center = $center->with(["donations" => function ($query) {
                 $query->withoutGlobalScope(DonationsScope::class);
             }]);
-        }else{
-        $center = $center->with('donations');
+        } else {
+            $center = $center->with('donations');
         }
-        $center=$center->first();
+        $center = $center->first();
         if (!$center) {
             return response()->json(["message" => "center not found"], 404);
         }
@@ -114,8 +124,8 @@ class CenterController extends Controller
         if (sizeof($data) < 2) {
             return response()->json(["error" => "you must choose the id of the center that it's location needed to be modified and include new values to be modified"], 422);
         }
-     //   DB::table('centers')->where('id', '=', $data['id'])->update($data);
-        Center::where('id', '=', $data['id'] )->update($data);
+        //   DB::table('centers')->where('id', '=', $data['id'])->update($data);
+        Center::where('id', '=', $data['id'])->update($data);
         return response()->json(["Message" => 'center update is done successfully'], 200);
     }
 }
