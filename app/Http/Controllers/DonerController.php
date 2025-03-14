@@ -59,6 +59,8 @@ class DonerController extends Controller
 
     function showDoners(Request $request)
     {
+        $per_page = request()->get('perpage', 3);
+        $page = $request->get('page',1);
         $doner = Doner::query();
         if ($request->has("email")) {
             $query = $request->query("email");
@@ -74,11 +76,13 @@ class DonerController extends Controller
         }
         if ($request->user()->tokenCan('admin')) {
             // $results = $center->with("donations")->withoutGlobalScope(DonationsScope::class)->get();
+           
             $results = $doner->with(["donations" => function ($query) {
                 $query->withoutGlobalScope(DonationsScope::class);
-            }])->get();
+            }])->paginate($per_page,["*"],"page",$page);
         }else{
-        $results=$doner->with("donations")->get();
+            // $perpage = request()->get('perpage', 3);
+        $results=$doner->with("donations")->paginate($per_page,["*"],"page",$page);
         }
         return DonerResource::collection($results);
         // $center = Center::where("id", $request->id);

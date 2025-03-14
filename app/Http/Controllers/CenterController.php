@@ -34,6 +34,8 @@ class CenterController extends Controller
 
     function listCenters(Request $request)
     {
+        $per_page = request()->get('perpage', 3);
+        $page = $request->get('page',1);
         $center = Center::query();
         if ($request->has("location")) {
             $query = $request->query("location");
@@ -44,9 +46,9 @@ class CenterController extends Controller
         // $results = $center->with("donations")->withoutGlobalScope(DonationsScope::class)->get();
         $results = $center->with(["donations" => function ($query) {
             $query->withoutGlobalScope(DonationsScope::class);
-        }])->get();
+        }])->paginate($per_page,["*"],"page",$page);
         }else{
-            $results= $center->with("donations")->get();
+            $results= $center->with("donations")->paginate($per_page,["*"],"page",$page);
         }
         foreach ($results as $result) {
             $searched_center = $result->location;

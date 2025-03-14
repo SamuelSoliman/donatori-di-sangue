@@ -75,6 +75,8 @@ class UserController extends Controller
     function listUsers(Request $request)
     {
         $user=User::query();
+        $per_page = request()->get('perpage', 3);
+        $page = $request->get('page',1);
         if ($request->has("role")){
             $query = $request->query("role");
             if ($query =="admin"){
@@ -95,7 +97,7 @@ class UserController extends Controller
             $query = $request->query('lastname');
             $user=$user->where('lastname','like', $query.'%');
         }
-        $results=$user->get();
+        $results=$user->paginate($per_page,["*"],"page",$page);
         return UserResource::collection($results);
         // $final_results = ["user_data" => []];
         // $had_params = false;

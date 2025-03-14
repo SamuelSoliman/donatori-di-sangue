@@ -30,6 +30,8 @@ class DonationController extends Controller
 
     function showDonations(Request $request)
     {
+        $per_page = request()->get('perpage', 3);
+        $page = $request->get('page',1);
         $donation = Donation::query();
         if ($request->user()->tokenCan("admin")) {
             $donation = $donation->withoutGlobalScope(DonationsScope::class);
@@ -47,7 +49,7 @@ class DonationController extends Controller
             $donation = $donation->where("center", "LIKE", $query . '%');
         }
 
-        $results = $donation->get();
+        $results = $donation->paginate($per_page,["*"],"page",$page);
         return DonationResource::collection($results);
 
         // $final_results = ["donations_data" => []];
