@@ -45,17 +45,17 @@ class CenterController extends Controller
         $results = null;
         if ($request->user()->tokenCan('admin')) {
             // $results = $center->with("donations")->withoutGlobalScope(DonationsScope::class)->get();
-            if ($per_page==-1){
+            if ($per_page == -1) {
                 $results = $center->with(["donations" => function ($query) {
                     $query->withoutGlobalScope(DonationsScope::class);
                 }])->get();
-            }else {
-            $results = $center->with(["donations" => function ($query) {
-                $query->withoutGlobalScope(DonationsScope::class);
-            }])->paginate($per_page, ["*"], "page", $page);
+            } else {
+                $results = $center->with(["donations" => function ($query) {
+                    $query->withoutGlobalScope(DonationsScope::class);
+                }])->paginate($per_page, ["*"], "page", $page);
             }
         } else {
-            if ($per_page== -1){
+            if ($per_page == -1) {
                 $results = $center->with("donations")->get();
             } else {
                 $results = $center->with("donations")->paginate($per_page, ["*"], "page", $page);

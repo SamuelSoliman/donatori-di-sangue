@@ -48,10 +48,10 @@ class DonationController extends Controller
             $query = $request->query("center");
             $donation = $donation->where("center", "LIKE", $query . '%');
         }
-        if ($per_page==-1){
+        if ($per_page == -1) {
             $results = $donation->get();
-        }else{
-        $results = $donation->paginate($per_page, ["*"], "page", $page);
+        } else {
+            $results = $donation->paginate($per_page, ["*"], "page", $page);
         }
         return DonationResource::collection($results);
 

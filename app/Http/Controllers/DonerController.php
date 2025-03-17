@@ -59,7 +59,7 @@ class DonerController extends Controller
 
     function showDoners(Request $request)
     {
-        $per_page = request()->get('perpage',3);
+        $per_page = request()->get('perpage', 3);
 
         $page = $request->get('page', 1);
         $doner = Doner::query();
@@ -81,17 +81,17 @@ class DonerController extends Controller
                 $results = $doner->with(["donations" => function ($query) {
                     $query->withoutGlobalScope(DonationsScope::class);
                 }])->get();
-            }else {
-            $results = $doner->with(["donations" => function ($query) {
-                $query->withoutGlobalScope(DonationsScope::class);
-            }])->paginate($per_page, ["*"], "page", $page);
-        }
+            } else {
+                $results = $doner->with(["donations" => function ($query) {
+                    $query->withoutGlobalScope(DonationsScope::class);
+                }])->paginate($per_page, ["*"], "page", $page);
+            }
         } else {
             // $perpage = request()->get('perpage', 3);
-            if ($per_page == -1){
+            if ($per_page == -1) {
                 $results = $doner->with("donations")->get();
-            }else {
-                 $results = $doner->with("donations")->paginate($per_page, ["*"], "page", $page);
+            } else {
+                $results = $doner->with("donations")->paginate($per_page, ["*"], "page", $page);
             }
         }
         return DonerResource::collection($results);
