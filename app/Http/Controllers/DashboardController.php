@@ -22,7 +22,7 @@ class DashboardController extends Controller
                 //calculation number of doners 
                 $num_doners = Doner::count(); //2
                 //calculation number of donations 
-                $num_donations = Donation::count(); //3
+                $num_donations = Donation::withoutGlobalScopes()->count(); //3
                 //calculation of avg donations per doner 
                 $count_donations = Donation::count();
                 $count_doners = Doner::count();
@@ -31,9 +31,17 @@ class DashboardController extends Controller
                 $count_centers = Center::count(); //1
                 $avg_donations_per_center = round(((float)$count_donations / $count_centers), 2);
                 //calculation of center with most donations               
-                $top_center = Center::withCount('donations')->orderByDesc('donations_count')->first(); //6
+                $top_center = Center::withoutGlobalScopes()->withCount([
+                    'donations' => function ($query) {
+                        $query->withoutGlobalScopes();
+                    }
+                ])->orderByDesc('donations_count')->first(); //6
                 //calculation of doner with most donations 
-                $top_doner = Doner::select(DB::raw('concat(name," ",lastname) as fullname'))->withCount('donations')->orderByDesc('donations_count')->first(); //7
+                $top_doner = Doner::withoutGlobalScopes()->select(DB::raw('concat(name," ",lastname) as fullname'))->withCount([
+                    'donations' => function ($query) {
+                        $query->withoutGlobalScopes();
+                    }
+                ])->orderByDesc('donations_count')->first(); //7
 
                 return [
                     "num_doners" => $num_doners,

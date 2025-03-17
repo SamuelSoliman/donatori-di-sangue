@@ -246,7 +246,6 @@ class UserController extends Controller
         $deletedUser = User::where('email', '=', $deletedUserEmail)->delete();
 
         if ($deletedUser) {
-
             return response()->json(["Message" => "User is deleted successfully"], 200);
         } else {
             return response()->json(["Message" => "User delete failed"], 500);
@@ -278,7 +277,8 @@ class UserController extends Controller
             $updateData['lastname'] = $data['lastname'];
         }
         if (array_key_exists('email', $data)) {
-            $user = DB::table('users')->where('id', '=', $data["id"])->first();
+           // $user = DB::table('users')->where('id', '=', $data["id"])->first();
+            $user = User::where('id','=',$data["id"])->first();
             if ($user->email != $data['email']) {
                 $updateData['email'] = $data['email'];
             }

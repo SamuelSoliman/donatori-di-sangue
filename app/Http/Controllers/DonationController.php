@@ -16,7 +16,7 @@ class DonationController extends Controller
     {
         $data = $request->validate([
             "doner_email" => 'required|email|exists:doners,email',
-            "center" => 'required|alpha|exists:centers,location',
+            "center" => 'required|exists:centers,location',
             "donation_date" => 'required|date'
         ]);
 
@@ -109,7 +109,7 @@ class DonationController extends Controller
             "id" => 'required|exists:donations,id',
             "doner_email" => 'email|exists:doners,email',
             "donation_date" => 'date',
-            "center" => 'alpha|exists:centers,location'
+            "center" => 'exists:centers,location'
 
         ]);
         if (sizeof($data) < 2) {

@@ -59,7 +59,7 @@ class DonerController extends Controller
 
     function showDoners(Request $request)
     {
-        $per_page = request()->get('perpage', 3);
+        $per_page = request()->get('perpage',3);
 
         $page = $request->get('page', 1);
         $doner = Doner::query();
