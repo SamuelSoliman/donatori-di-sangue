@@ -19,12 +19,9 @@ class DashboardController extends Controller
         if ($request->user()->tokenCan("admin")) {
 
             $cached_data = Cache::remember('all_data_admin', 90, function () {
-                //calculation number of doners 
-                $num_doners = Doner::count(); //2
-                //calculation number of donations 
-                $num_donations = Donation::withoutGlobalScopes()->count(); //3
+             
                 //calculation of avg donations per doner 
-                $count_donations = Donation::count();
+                $count_donations = Donation::withoutGlobalScopes()->count();
                 $count_doners = Doner::count();
                 $avg_donations_per_doner = round(((float)$count_donations / $count_doners), 2);
                 //calculation of avg donations per center 
@@ -44,8 +41,8 @@ class DashboardController extends Controller
                 ])->orderByDesc('donations_count')->first(); //7
 
                 return [
-                    "num_doners" => $num_doners,
-                    "num_donations" => $num_donations,
+                    "num_doners" => $count_doners,
+                    "num_donations" => $count_donations,
                     "avg_donations_per_doner" => $avg_donations_per_doner,
                     "count_centers" => $count_centers,
                     "avg_donations_per_center" => $avg_donations_per_center,
