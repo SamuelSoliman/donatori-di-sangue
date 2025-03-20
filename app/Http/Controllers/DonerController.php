@@ -59,9 +59,13 @@ class DonerController extends Controller
 
     function showDoners(Request $request)
     {
-        $per_page = request()->get('perpage', 3);
 
+        $per_page = request()->get('perpage', 3);
         $page = $request->get('page', 1);
+        $sort_by = $request->query('sortBy', 'name');
+        $sort_order= $request->query('sortDesc',true);
+        $sort_order= $sort_order == "false"? false:true;
+        $direction= $sort_order==true ?'desc':'asc';
         $doner = Doner::query();
         if ($request->has("email")) {
             $query = $request->query("email");
@@ -75,23 +79,28 @@ class DonerController extends Controller
             $query = $request->query("lastname");
             $doner = $doner->where("lastname", "like", $query . '%');
         }
+
         if ($request->user()->tokenCan('admin')) {
             // $results = $center->with("donations")->withoutGlobalScope(DonationsScope::class)->get();
             if ($per_page == -1) {
                 $results = $doner->with(["donations" => function ($query) {
                     $query->withoutGlobalScope(DonationsScope::class);
-                }])->get();
+                }])->withCount(["donations" => function ($query) {
+                    $query->withoutGlobalScope(DonationsScope::class);
+                }])->orderBy($sort_by,$direction)->get();
             } else {
                 $results = $doner->with(["donations" => function ($query) {
                     $query->withoutGlobalScope(DonationsScope::class);
-                }])->paginate($per_page, ["*"], "page", $page);
+                }])->withCount(["donations" => function ($query) {
+                    $query->withoutGlobalScope(DonationsScope::class);
+                }])->orderBy($sort_by,$direction)->paginate($per_page, ["*"], "page", $page);
             }
         } else {
             // $perpage = request()->get('perpage', 3);
             if ($per_page == -1) {
-                $results = $doner->with("donations")->get();
+                $results = $doner->with("donations")->withCount("donations")->orderBy($sort_by,$direction)->get();
             } else {
-                $results = $doner->with("donations")->paginate($per_page, ["*"], "page", $page);
+                $results = $doner->with("donations")->withCount("donations")->orderBy($sort_by,$direction)->paginate($per_page, ["*"], "page", $page);
             }
         }
         return DonerResource::collection($results);

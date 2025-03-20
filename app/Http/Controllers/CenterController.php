@@ -37,6 +37,10 @@ class CenterController extends Controller
     {
         $per_page = request()->get('perpage', 3);
         $page = $request->get('page', 1);
+        $sort_by = $request->query('sortBy', 'location');
+        $sort_order= $request->query('sortDesc',true);
+        $sort_order= $sort_order == "false"? false:true;
+        $direction= $sort_order==true ?'desc':'asc';
         $center = Center::query();
         if ($request->has("location")) {
             $query = $request->query("location");
@@ -48,17 +52,21 @@ class CenterController extends Controller
             if ($per_page == -1) {
                 $results = $center->with(["donations" => function ($query) {
                     $query->withoutGlobalScope(DonationsScope::class);
-                }])->get();
+                }])->withCount(["donations" => function ($query) {
+                    $query->withoutGlobalScope(DonationsScope::class);
+                }])->orderBy($sort_by,$direction)->get();
             } else {
                 $results = $center->with(["donations" => function ($query) {
                     $query->withoutGlobalScope(DonationsScope::class);
-                }])->paginate($per_page, ["*"], "page", $page);
+                }])->withCount(["donations" => function ($query) {
+                    $query->withoutGlobalScope(DonationsScope::class);
+                }])->orderBy($sort_by,$direction)->paginate($per_page, ["*"], "page", $page);
             }
         } else {
             if ($per_page == -1) {
-                $results = $center->with("donations")->get();
+                $results = $center->with("donations")->withCount("donations")->orderBy($sort_by,$direction)->get();
             } else {
-                $results = $center->with("donations")->paginate($per_page, ["*"], "page", $page);
+                $results = $center->with("donations")->withCount("donations")->orderBy($sort_by,$direction)->paginate($per_page, ["*"], "page", $page);
             }
         }
         foreach ($results as $result) {

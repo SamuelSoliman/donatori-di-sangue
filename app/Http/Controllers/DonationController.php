@@ -19,8 +19,15 @@ class DonationController extends Controller
             "center" => 'required|exists:centers,location',
             "donation_date" => 'required|date'
         ]);
-
-        $donation = Donation::insert(["doner_email" => $data["doner_email"], "center" => $data['center'], "donation_date" => $data["donation_date"]]);
+        if ($request->user()->tokenCan('admin')) {
+            $donation = Donation::insert($data);
+        } else {
+            if ($request->user()->center != $data["center"]) {
+                return response()->json(["Message" => "User cant insert donations in center doesnt belong to him"], 401);
+            } else {
+                $donation = Donation::insert($data);
+            }
+        }
         if ($donation) {
             return response()->json(["Message" => "donation creation is complete"], 200);
         } else {
@@ -32,6 +39,10 @@ class DonationController extends Controller
     {
         $per_page = request()->get('perpage', 3);
         $page = $request->get('page', 1);
+        $sort_by = $request->query('sortBy', 'doner_email');
+        $sort_order= $request->query('sortDesc',true);
+        $sort_order= $sort_order == "false"? false:true;
+        $direction= $sort_order==true ?'desc':'asc';
         $donation = Donation::query();
         if ($request->user()->tokenCan("admin")) {
             $donation = $donation->withoutGlobalScope(DonationsScope::class);
@@ -49,9 +60,9 @@ class DonationController extends Controller
             $donation = $donation->where("center", "LIKE", $query . '%');
         }
         if ($per_page == -1) {
-            $results = $donation->get();
+            $results = $donation->orderBy($sort_by,$direction)->get();
         } else {
-            $results = $donation->paginate($per_page, ["*"], "page", $page);
+            $results = $donation->orderBy($sort_by,$direction)->paginate($per_page, ["*"], "page", $page);
         }
         return DonationResource::collection($results);
 
@@ -122,8 +133,13 @@ class DonationController extends Controller
         //    $update = Donation::where('id', $data['id'])->update($updateData);
         if ($request->user()->tokenCan("admin"))
             $update = Donation::withoutGlobalScope(DonationsScope::class)->where('id', '=', $data['id'])->update($data);
-        else
-            $update = Donation::where('id', '=', $data['id'])->update($data);
+        else {
+            if ($request->user()->center != $data["center"]) {
+                return response()->json(["Message" => "User cant insert donations in center doesnt belong to him"], 401);
+            } else {
+                $update = Donation::where('id', '=', $data['id'])->update($data);
+            }
+        }
         if ($update)
             return response()->json(["Message" => 'donation  update is done successfully'], 200);
         else
