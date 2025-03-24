@@ -13,6 +13,9 @@ class DonationsScope implements Scope
      */
     public function apply(Builder $builder, Model $model): void
     {
+       
+        // if (!admin) --> scope
+
         $builder->where("center","=",auth()->user()->center);
     }
 }

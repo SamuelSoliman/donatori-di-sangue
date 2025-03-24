@@ -78,9 +78,9 @@ class UserController extends Controller
         $per_page = request()->get('perpage', 3);
         $page = $request->get('page', 1);
         $sort_by = $request->query('sortBy', 'name');
-        $sort_order= $request->query('sortDesc',true);
-        $sort_order= $sort_order == "false"? false:true;
-        $direction= $sort_order==true ?'desc':'asc';
+        $sort_order = $request->query('sortDesc', true);
+        $sort_order = $sort_order == "false" ? false : true;
+        $direction = $sort_order == true ? 'desc' : 'asc';
         if ($request->has("role")) {
             $query = $request->query("role");
             if ($query == "admin") {
@@ -102,9 +102,9 @@ class UserController extends Controller
             $user = $user->where('lastname', 'like', $query . '%');
         }
         if ($per_page == -1)
-            $results = $user->orderBy($sort_by,$direction)->get();
+            $results = $user->where('id', '!=', $request->user()->id)->orderBy($sort_by, $direction)->get();
         else
-            $results = $user->orderBy($sort_by,$direction)->paginate($per_page, ["*"], "page", $page);
+            $results = $user->where('id', '!=', $request->user()->id)->orderBy($sort_by, $direction)->paginate($per_page, ["*"], "page", $page);
         return UserResource::collection($results);
         // $final_results = ["user_data" => []];
         // $had_params = false;
@@ -383,8 +383,8 @@ class UserController extends Controller
             'new_password' => 'required|min:8|confirmed'
         ]);
 
-        if ($data['current_password']==$data['new_password']){
-            return response()->json(["Message"=>"new password cant be equal to current password"],422);
+        if ($data['current_password'] == $data['new_password']) {
+            return response()->json(["Message" => "new password cant be equal to current password"], 422);
         }
 
         if (!Hash::check($data['current_password'], $user->password)) {
