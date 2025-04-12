@@ -9,7 +9,7 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
-
+use App\Http\Resources\UserResource;
 
 class UserController extends Controller
 {
@@ -57,12 +57,14 @@ class UserController extends Controller
 
         $data['password'] = Hash::make($data['password']);
         if (array_key_exists("admin", $data)) {
-            DB::table("users")->insert(["name" => $data['name'], "lastname" => $data['lastname'], "email" => $data['email'], "password" => $data["password"], "center" => $data['center'], "admin" => $data['admin']]);
+            //  DB::table("users")->insert(["name" => $data['name'], "lastname" => $data['lastname'], "email" => $data['email'], "password" => $data["password"], "center" => $data['center'], "admin" => $data['admin']]);
+            User::insert(["name" => $data['name'], "lastname" => $data['lastname'], "email" => $data['email'], "password" => $data["password"], "center" => $data['center'], "admin" => $data['admin']]);
         } else {
-            DB::table("users")->insert(["name" => $data['name'], "lastname" => $data['lastname'], "email" => $data['email'], "password" => $data["password"], "center" => $data['center']]);
+            //  DB::table("users")->insert(["name" => $data['name'], "lastname" => $data['lastname'], "email" => $data['email'], "password" => $data["password"], "center" => $data['center']]);
+            User::insert(["name" => $data['name'], "lastname" => $data['lastname'], "email" => $data['email'], "password" => $data["password"], "center" => $data['center']]);
         }
 
-        $user = User::where('email', $request->input('email'))->first();
+        // $user = User::where('email', $request->input('email'))->first();
 
         $role = isset($data["admin"]) && $data["admin"] == true ? "admin" : "user";
         return response()->json(["Message" => "successful creation for user", "data" => ["name" => $data['name'], "lastname" => $data["lastname"], "email" => $data["email"], "center" => $data['center'], "role" => $role]], 201);
@@ -72,101 +74,168 @@ class UserController extends Controller
 
     function listUsers(Request $request)
     {
-        $final_results = ["user_data" => []];
-        $had_params = false;
+        $user = User::query();
+        $per_page = request()->get('perpage', 3);
+        $page = $request->get('page', 1);
+        $sort_by = $request->query('sortBy', 'name');
+        $sort_order = $request->query('sortDesc', true);
+        $sort_order = $sort_order == "false" ? false : true;
+        $direction = $sort_order == true ? 'desc' : 'asc';
+        if ($request->has("role")) {
+            $query = $request->query("role");
+            if ($query == "admin") {
+                $user = $user->where("admin", '=', 1);
+            } elseif ($query == "user") {
+                $user = $user->where("admin", "=", 0);
+            }
+        }
         if ($request->has("email")) {
-            $query = $request->query('email');
-            $had_params = true;
-            $user = DB::table('users')
-                ->select('id', 'name', 'lastname', 'email', 'admin', 'center')
-                ->where('email', 'like', $query . '%')
-                ->get()->map(function ($user) {
-                    return [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                        'lastname' => $user->lastname,
-                        'email' => $user->email,
-                        'role' => $user->admin == 1 ? "admin" : "user",
-                        'center' => $user->center
-                    ];
-                });
-            if (!$user->isEmpty()) {
-                $final_results['user_data'] = array_merge($final_results["user_data"], $user->toArray());
-            }
+            $query = $request->query("email");
+            $user = $user->where("email", 'like', $query . '%');
         }
-        if ($request->has("name") && $request->has("lastname")) {
-            $query_name = $request->query('name');
-            $query_lastname = $request->query('lastname');
-            $had_params = true;
-            $user = DB::table('users')->select('id', 'name', 'lastname', 'email', 'admin', 'center')->where('name', 'like', $query_name . '%')->where('lastname', 'like', $query_lastname . '%')->get()->map(function ($user) {
-                return [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'lastname' => $user->lastname,
-                    'email' => $user->email,
-                    'role' => $user->admin == 1 ? "admin" : "user",
-                    'center' => $user->center
-                ];
-            });
-            if (!$user->isEmpty()) {
-                $final_results['user_data'] = array_merge($final_results["user_data"], $user->toArray());
-                return ["Message" => "this user or users data were found ", "data" => $final_results];
-            }
-        }
-
-        if ($request->has("name")) {
+        if ($request->has('name')) {
             $query = $request->query('name');
-            $had_params = true;
-            $user = DB::table('users')->select('id', 'name', 'lastname', 'email', 'admin', 'center')->where('name', 'like', $query . '%')->get()->map(function ($user) {
-                return [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'lastname' => $user->lastname,
-                    'email' => $user->email,
-                    'role' => $user->admin == 1 ? "admin" : "user",
-                    'center' => $user->center
-                ];
-            });
-            if (!$user->isEmpty()) {
-                $final_results['user_data'] = array_merge($final_results["user_data"], $user->toArray());
-            }
+            $user = $user->where('name', 'like', $query . '%');
         }
-
-        if ($request->has("lastname")) {
+        if ($request->has('lastname')) {
             $query = $request->query('lastname');
-            $had_params = true;
-            $user = DB::table('users')->select('id', 'name', 'lastname', 'email', 'admin', 'center')->where('lastname', 'like', $query . '%')->get()->map(function ($user) {
-                return [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'lastname' => $user->lastname,
-                    'email' => $user->email,
-                    'role' => $user->admin == 1 ? "admin" : "user",
-                    'center' => $user->center
-                ];
-            });
-            if (!$user->isEmpty()) {
-                $final_results['user_data'] = array_merge($final_results["user_data"], $user->toArray());
-            }
+            $user = $user->where('lastname', 'like', $query . '%');
         }
-        if (!$had_params) {
-            $users = DB::table('users')->select('id', 'name', 'lastname', 'email', 'admin', 'center')->get()
-                ->map(function ($user) {
-                    return [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                        'lastname' => $user->lastname,
-                        'email' => $user->email,
-                        'role' => $user->admin == 1 ? "admin" : "user",
-                        'center' => $user->center
-                    ];
-                });
-            return [$users];
-        } elseif ($had_params && empty($final_results["user_data"])) {
-            return response()->json(["Message" => "this user or users name or lastname or email wasnt found "], 404);
-        } else {
-            return ["Message" => "this user or users data were found ", "data" => $final_results];
-        }
+        if ($per_page == -1)
+            $results = $user->where('id', '!=', $request->user()->id)->orderBy($sort_by, $direction)->get();
+        else
+            $results = $user->where('id', '!=', $request->user()->id)->orderBy($sort_by, $direction)->paginate($per_page, ["*"], "page", $page);
+        return UserResource::collection($results);
+        // $final_results = ["user_data" => []];
+        // $had_params = false;
+        // $user=collect();
+        // if ($request->has("role")) 
+        // {
+        //     $query= $request->query("role");
+        //     $had_params = true;
+        //     if ($query=="admin"){
+        //         $user= User::where("admin","=", 1)->get()->map(function ($user) {
+        //             return [
+        //                 'id' => $user->id,
+        //                 'name' => $user->name,
+        //                 'lastname' => $user->lastname,
+        //                 'email' => $user->email,
+        //                 'role' => $user->admin == 1 ? "admin" : "user",
+        //                 'center' => $user->center
+        //             ];
+        //         });;
+        //     }elseif ($query== "user"){
+        //         $user= User::where("admin","=",0)->get()
+        //         ->map(function ($user) {
+        //             return [
+        //                 'id' => $user->id,
+        //                 'name' => $user->name,
+        //                 'lastname' => $user->lastname,
+        //                 'email' => $user->email,
+        //                 'role' => $user->admin == 1 ? "admin" : "user",
+        //                 'center' => $user->center
+        //             ];
+        //         });
+        //     }
+        //     if (!$user->isEmpty()){
+        //         $final_results['user_data'] = array_merge($final_results["user_data"], $user->toArray());
+        //     }
+
+
+        // }
+        // if ($request->has("email")) {
+        //     $query = $request->query('email');
+        //     $had_params = true;
+        //     $user = DB::table('users')
+        //         ->select('id', 'name', 'lastname', 'email', 'admin', 'center')
+        //         ->where('email', 'like', $query . '%')
+        //         ->get()->map(function ($user) {
+        //             return [
+        //                 'id' => $user->id,
+        //                 'name' => $user->name,
+        //                 'lastname' => $user->lastname,
+        //                 'email' => $user->email,
+        //                 'role' => $user->admin == 1 ? "admin" : "user",
+        //                 'center' => $user->center
+        //             ];
+        //         });
+        //     if (!$user->isEmpty()) {
+        //         $final_results['user_data'] = array_merge($final_results["user_data"], $user->toArray());
+        //     }
+        // }
+        // if ($request->has("name") && $request->has("lastname")) {
+        //     $query_name = $request->query('name');
+        //     $query_lastname = $request->query('lastname');
+        //     $had_params = true;
+        //     $user = DB::table('users')->select('id', 'name', 'lastname', 'email', 'admin', 'center')->where('name', 'like', $query_name . '%')->where('lastname', 'like', $query_lastname . '%')->get()->map(function ($user) {
+        //         return [
+        //             'id' => $user->id,
+        //             'name' => $user->name,
+        //             'lastname' => $user->lastname,
+        //             'email' => $user->email,
+        //             'role' => $user->admin == 1 ? "admin" : "user",
+        //             'center' => $user->center
+        //         ];
+        //     });
+        //     if (!$user->isEmpty()) {
+        //         $final_results['user_data'] = array_merge($final_results["user_data"], $user->toArray());
+        //         return ["Message" => "this user or users data were found ", "data" => $final_results];
+        //     }
+        // }
+
+        // if ($request->has("name")) {
+        //     $query = $request->query('name');
+        //     $had_params = true;
+        //     $user = DB::table('users')->select('id', 'name', 'lastname', 'email', 'admin', 'center')->where('name', 'like', $query . '%')->get()->map(function ($user) {
+        //         return [
+        //             'id' => $user->id,
+        //             'name' => $user->name,
+        //             'lastname' => $user->lastname,
+        //             'email' => $user->email,
+        //             'role' => $user->admin == 1 ? "admin" : "user",
+        //             'center' => $user->center
+        //         ];
+        //     });
+        //     if (!$user->isEmpty()) {
+        //         $final_results['user_data'] = array_merge($final_results["user_data"], $user->toArray());
+        //     }
+        // }
+
+        // if ($request->has("lastname")) {
+        //     $query = $request->query('lastname');
+        //     $had_params = true;
+        //     $user = DB::table('users')->select('id', 'name', 'lastname', 'email', 'admin', 'center')->where('lastname', 'like', $query . '%')->get()->map(function ($user) {
+        //         return [
+        //             'id' => $user->id,
+        //             'name' => $user->name,
+        //             'lastname' => $user->lastname,
+        //             'email' => $user->email,
+        //             'role' => $user->admin == 1 ? "admin" : "user",
+        //             'center' => $user->center
+        //         ];
+        //     });
+        //     if (!$user->isEmpty()) {
+        //         $final_results['user_data'] = array_merge($final_results["user_data"], $user->toArray());
+        //     }
+        // }
+        // if (!$had_params) {
+        //     $users = DB::table('users')->select('id', 'name', 'lastname', 'email', 'admin', 'center')->get()
+        //         ->map(function ($user) {
+        //             return [
+        //                 'id' => $user->id,
+        //                 'name' => $user->name,
+        //                 'lastname' => $user->lastname,
+        //                 'email' => $user->email,
+        //                 'role' => $user->admin == 1 ? "admin" : "user",
+        //                 'center' => $user->center
+        //             ];
+        //         });
+        //     return [$users];
+        // } elseif ($had_params && empty($final_results["user_data"])) {
+        //     return response()->json(["Message" => "this user or users name or lastname or email or role wasnt found "], 404);
+        // } else {
+        //     return ["Message" => "this user or users data were found ", "data" => $final_results];
+        // }
     }
 
 
@@ -177,10 +246,10 @@ class UserController extends Controller
             'email' => 'required|email|exists:users,email'
         ]);
 
-        $deletedUser = DB::table('users')->where('email', '=', $deletedUserEmail)->delete();
+        // $deletedUser = DB::table('users')->where('email', '=', $deletedUserEmail)->delete();
+        $deletedUser = User::where('email', '=', $deletedUserEmail)->delete();
 
         if ($deletedUser) {
-
             return response()->json(["Message" => "User is deleted successfully"], 200);
         } else {
             return response()->json(["Message" => "User delete failed"], 500);
@@ -212,7 +281,8 @@ class UserController extends Controller
             $updateData['lastname'] = $data['lastname'];
         }
         if (array_key_exists('email', $data)) {
-            $user = DB::table('users')->where('id', '=', $data["id"])->first();
+            // $user = DB::table('users')->where('id', '=', $data["id"])->first();
+            $user = User::where('id', '=', $data["id"])->first();
             if ($user->email != $data['email']) {
                 $updateData['email'] = $data['email'];
             }
@@ -227,9 +297,10 @@ class UserController extends Controller
         if (array_key_exists('password', $data)) {
             $updateData['password'] = Hash::make($data['password']);
         }
-      
 
-        $updated = DB::table('users')->where('id', '=', $data['id'])->update($updateData);
+
+        // $updated = DB::table('users')->where('id', '=', $data['id'])->update($updateData);
+        $updated = User::where('id', '=', $data['id'])->update($updateData);
         if ($updated) {
             return response()->json(["Message" => 'user update is done successfully'], 200);
         } else {
@@ -289,16 +360,17 @@ class UserController extends Controller
         if (!$user) {
             return response()->json(["message" => "user not found"], 404);
         }
-        $data = [];
-        $data['id'] = $user->id;
-        $data['name'] = $user->name;
-        $data['lastname'] = $user->lastname;
-        $data['email'] = $user->email;
-        $role = $user->admin == 1 ? "admin" : "user";
-        $data['role'] = $role;
-        $data['center'] = $user->center;
+        // $data = [];
+        // $data['id'] = $user->id;
+        // $data['name'] = $user->name;
+        // $data['lastname'] = $user->lastname;
+        // $data['email'] = $user->email;
+        // $role = $user->admin == 1 ? "admin" : "user";
+        // $data['role'] = $role;
+        // $data['center'] = $user->center;
 
-        return response()->json(["data" => $data], 200);
+        // return response()->json(["data" => $data], 200);
+        return new UserResource($user);
     }
 
 
@@ -310,6 +382,10 @@ class UserController extends Controller
             'current_password' => 'required',
             'new_password' => 'required|min:8|confirmed'
         ]);
+
+        if ($data['current_password'] == $data['new_password']) {
+            return response()->json(["Message" => "new password cant be equal to current password"], 422);
+        }
 
         if (!Hash::check($data['current_password'], $user->password)) {
             return response()->json(['errors' => 'current password is wrong'], 422);

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Center extends Model
 {
     //
+    public $timestamps = false;
     protected $fillable = ['location'];
     public function users()
     {
